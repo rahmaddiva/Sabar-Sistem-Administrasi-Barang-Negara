@@ -18,8 +18,19 @@
             </div>
             <div class="card mt-5">
                 <div class="card-body col-lg-12">
-                    <a href="/tambah-barang" class="btn btn-outline-secondary mb-3">Tambah Berita</a>
-                    <br>
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <a href="/tambah-barang" class="btn btn-outline-secondary">Tambah Barang</a>
+                        </div>
+                        <div class="btn-group">
+                            <a href="/export-pdf" class="btn btn-outline-danger" target="_blank">
+                                <i class="bx bxs-file-pdf"></i> Export PDF
+                            </a>
+                            <a href="/export-excel" class="btn btn-outline-success">
+                                <i class="bx bx-file-excel"></i> Export Excel
+                            </a>
+                        </div>
+                    </div>
                     <!-- table serverside -->
                     <div class="table-responsive mt-3">
                         <table id="table-barang" class="datatable-basic table border-top">
@@ -30,8 +41,8 @@
                                     <th>Nama Barang</th>
                                     <th>Merk</th>
                                     <th>Tahun Perolehan</th>
-                                    <th>Kondisi</th>
                                     <th>Penanggung Jawab</th>
+                                    <th>Kondisi</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -45,7 +56,10 @@
                             $('#table-barang').DataTable({
                                 processing: true,
                                 serverSide: true,
-                                ajax: '/kelola-barang'
+                                ajax: '/kelola-barang',
+                                language: {
+                                    url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
+                                }
                             });
                         });
                     </script>

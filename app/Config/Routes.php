@@ -24,3 +24,5 @@ $routes->get('detail-barang/(:num)', 'BarangController::detail/$1');
 $routes->get('edit-barang/(:num)', 'BarangController::edit/$1');
 $routes->post('update-barang/(:num)', 'BarangController::update/$1');
 $routes->post('delete-barang/(:num)', 'BarangController::delete/$1');
+$routes->get('export-pdf', 'BarangController::export_pdf');
+$routes->get('export-excel', 'BarangController::export_excel');

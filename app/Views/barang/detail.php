@@ -64,7 +64,7 @@
                                 <tr>
                                     <td><strong>Nilai Perolehan</strong></td>
                                     <td>:</td>
-                                    <td>Rp <?= number_format($barang['nilai_perolehan'], 0, ',', '.') ?></td>
+                                    <td> <?= number_format($barang['nilai_perolehan'], 0, ',', '.') ?></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Penanggung Jawab</strong></td>

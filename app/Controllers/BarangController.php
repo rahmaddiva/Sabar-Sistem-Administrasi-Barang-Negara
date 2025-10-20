@@ -37,6 +37,7 @@ class BarangController extends BaseController
                     ->like('nama_barang', $search)
                     ->orLike('kode_barang', $search)
                     ->orLike('merk', $search)
+                    ->orLike('penanggung_jawab', $search)
                     ->orLike('tahun_perolehan', $search)
                     ->orLike('kondisi', $search)
                     ->groupEnd();
@@ -208,13 +209,21 @@ class BarangController extends BaseController
             'keterangan' => $this->request->getPost('keterangan')
         ];
 
-        // generate QR code
+        // generate QR code with image URL
+        $imageUrl = '';
+        if ($namaGambar) {
+            $imageUrl = base_url('uploads/barang/images/' . $namaGambar);
+        }
+
         $qrData = json_encode([
             'kode_barang' => $data['kode_barang'],
             'nama_barang' => $data['nama_barang'],
             'merk' => $data['merk'],
             'tahun_perolehan' => $data['tahun_perolehan'],
-            'kondisi' => $data['kondisi']
+            'kondisi' => $data['kondisi'],
+            'penanggung_jawab' => $data['penanggung_jawab'],
+            'gambar_url' => $imageUrl,
+            'detail_url' => base_url('detail-barang/' . $data['kode_barang'])
         ]);
 
         // QR code options
@@ -418,7 +427,9 @@ class BarangController extends BaseController
             $barang['nama_barang'] !== $data['nama_barang'] ||
             $barang['merk'] !== $data['merk'] ||
             $barang['tahun_perolehan'] !== $data['tahun_perolehan'] ||
-            $barang['kondisi'] !== $data['kondisi']
+            $barang['kondisi'] !== $data['kondisi'] ||
+            $barang['penanggung_jawab'] !== $data['penanggung_jawab'] ||
+            $barang['gambar'] !== $data['gambar'] // regenerate if image changes
         ) {
 
             // delete old QR code if exists
@@ -426,12 +437,21 @@ class BarangController extends BaseController
                 unlink('uploads/barang/qrcodes/' . $barang['qr_code']);
             }
 
+            // generate QR code with image URL
+            $imageUrl = '';
+            if ($data['gambar']) {
+                $imageUrl = base_url('uploads/barang/images/' . $data['gambar']);
+            }
+
             $qrData = json_encode([
                 'kode_barang' => $data['kode_barang'],
                 'nama_barang' => $data['nama_barang'],
                 'merk' => $data['merk'],
                 'tahun_perolehan' => $data['tahun_perolehan'],
-                'kondisi' => $data['kondisi']
+                'kondisi' => $data['kondisi'],
+                'penanggung_jawab' => $data['penanggung_jawab'],
+                'gambar_url' => $imageUrl,
+                'detail_url' => base_url('detail-barang/' . $data['kode_barang'])
             ]);
 
             // QR code options
@@ -468,6 +488,154 @@ class BarangController extends BaseController
             }
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan saat memperbarui data');
         }
+    }
+
+    public function export_pdf()
+    {
+        $data['barang'] = $this->barangModel
+            ->select('barang.*, kategori.nama_kategori, lokasi.nama_lokasi')
+            ->join('kategori', 'kategori.id = barang.id_kategori')
+            ->join('lokasi', 'lokasi.id = barang.id_lokasi')
+            ->findAll();
+
+        // Load DOMPDF
+        $dompdf = new \Dompdf\Dompdf(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
+
+        // Load view into PDF
+        $html = view('barang/export_pdf', $data);
+        $dompdf->loadHtml($html);
+
+        // Set paper size and orientation
+        $dompdf->setPaper('A4', 'landscape');
+
+        // Render PDF
+        $dompdf->render();
+
+        // Stream PDF to browser
+        $dompdf->stream('data_barang_' . date('Y-m-d') . '.pdf', ['Attachment' => false]);
+    }
+
+    public function export_excel()
+    {
+        $barang = $this->barangModel
+            ->select('barang.*, kategori.nama_kategori, lokasi.nama_lokasi')
+            ->join('kategori', 'kategori.id = barang.id_kategori')
+            ->join('lokasi', 'lokasi.id = barang.id_lokasi')
+            ->findAll();
+
+        // Create new Spreadsheet object
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set document properties
+        $spreadsheet->getProperties()
+            ->setCreator('SABAR - Sistem Administrasi Barang')
+            ->setLastModifiedBy('SABAR System')
+            ->setTitle('Data Barang')
+            ->setSubject('Laporan Data Barang')
+            ->setDescription('Daftar Barang dari Sistem Administrasi Barang');
+
+        // Add header row
+        $sheet->setCellValue('A1', 'LAPORAN DATA BARANG');
+        $sheet->mergeCells('A1:J1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Add date
+        $sheet->setCellValue('A2', 'Tanggal: ' . date('d-m-Y'));
+        $sheet->mergeCells('A2:J2');
+        $sheet->getStyle('A2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Add headers
+        $headers = [
+            'No',
+            'Kode Barang',
+            'Nama Barang',
+            'Kategori',
+            'Lokasi',
+            'Merk',
+            'Nilai Perolehan',
+            'Penanggung Jawab',
+            'Tahun',
+            'Kondisi'
+        ];
+
+        // Style for headers
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4B5563'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ];
+
+        // Apply headers
+        foreach ($headers as $index => $header) {
+            $column = chr(65 + $index); // Convert number to letter (A, B, C, etc.)
+            $sheet->setCellValue($column . '4', $header);
+        }
+        $sheet->getStyle('A4:J4')->applyFromArray($headerStyle);
+
+        // Add data
+        $row = 5;
+        $no = 1;
+        foreach ($barang as $item) {
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $item['kode_barang']);
+            $sheet->setCellValue('C' . $row, $item['nama_barang']);
+            $sheet->setCellValue('D' . $row, $item['nama_kategori']);
+            $sheet->setCellValue('E' . $row, $item['nama_lokasi']);
+            $sheet->setCellValue('F' . $row, $item['merk']);
+            $sheet->setCellValue('G' . $row, $item['nilai_perolehan']);
+            $sheet->setCellValue('H' . $row, $item['penanggung_jawab']);
+            $sheet->setCellValue('I' . $row, $item['tahun_perolehan']);
+            $sheet->setCellValue('J' . $row, $item['kondisi']);
+
+            // Format number for nilai_perolehan
+            $sheet->getStyle('G' . $row)->getNumberFormat()
+                ->setFormatCode('#,##0');
+
+            $row++;
+        }
+
+        // Style for data
+        $dataStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ],
+            ],
+        ];
+        $sheet->getStyle('A4:J' . ($row - 1))->applyFromArray($dataStyle);
+
+        // Auto size columns
+        foreach (range('A', 'J') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        // Create writer
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        // Set headers for download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="data_barang_' . date('Y-m-d') . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        // Save to PHP output
+        $writer->save('php://output');
+        exit;
     }
 
     public function delete($id)
