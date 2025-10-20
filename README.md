@@ -1,68 +1,95 @@
-# CodeIgniter 4 Application Starter
+# SABAR (Sistem Administrasi Barang)
 
-## What is CodeIgniter?
+**SABAR** adalah aplikasi web yang dibangun menggunakan framework CodeIgniter 4 untuk membantu dalam pengelolaan dan administrasi data inventaris barang. Aplikasi ini dirancang untuk memudahkan pencatatan, pelacakan, dan pelaporan aset atau barang secara efisien.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Fitur Utama
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+- **Autentikasi Pengguna**: Sistem registrasi, login, dan logout yang aman.
+- **Manajemen Barang (CRUD)**:
+  - Menambah, melihat, mengubah, dan menghapus data barang.
+  - Mengelompokkan barang berdasarkan kategori dan lokasi.
+- **DataTables Server-Side**: Menampilkan daftar barang dengan cepat dan efisien, bahkan dengan jumlah data yang sangat besar, lengkap dengan fitur pencarian dan paginasi.
+- **Upload Media**:
+  - Mengunggah **gambar barang** dengan preview sebelum upload.
+  - Mengunggah **dokumen BAST** (Berita Acara Serah Terima) dalam format PDF, DOC, atau DOCX.
+- **Generasi QR Code**: Setiap barang secara otomatis dibuatkan QR Code yang berisi informasi ringkas, memudahkan pelacakan fisik.
+- **Halaman Detail**: Tampilan detail untuk setiap barang yang mencakup semua informasi, gambar, preview dokumen, dan QR Code yang dapat diunduh.
+- **Validasi Form**: Validasi input di sisi server untuk memastikan integritas data.
+- **UI/UX Modern**: Antarmuka yang bersih dan responsif menggunakan Bootstrap, dengan komponen interaktif seperti modal dan preview file.
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## Teknologi yang Digunakan
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+- **Backend**: PHP 8.1+, CodeIgniter 4
+- **Frontend**: HTML, CSS, JavaScript, Bootstrap 5, jQuery
+- **Database**: MySQL (via `mysqlnd`)
+- **Library**:
+  - `chillerlan/php-qrcode`: Untuk menghasilkan QR Code.
+  - `DataTables`: Untuk tabel interaktif.
 
-## Installation & updates
-
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
-
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
-
-## Setup
-
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
-
-## Important Change with index.php
-
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
-
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
-
-**Please** read the user guide for a better explanation of how CI4 works!
-
-## Repository Management
-
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
-
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
-
-## Server Requirements
+## Persyaratan Server
 
 PHP version 8.1 or higher is required, with the following extensions installed:
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
-
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+- intl
+- mbstring
 
 Additionally, make sure that the following extensions are enabled in your PHP:
 
 - json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+- mysqlnd if you plan to use MySQL
+- libcurl if you plan to use the HTTP\CURLRequest library
+
+## Panduan Instalasi
+
+1.  **Clone Repository**
+    ```bash
+    git clone [URL_REPOSITORY_ANDA] sabar
+    cd sabar
+    ```
+
+2.  **Install Dependencies**
+    Pastikan Anda memiliki Composer. Jalankan perintah berikut untuk menginstal semua library yang dibutuhkan.
+    ```bash
+    composer install
+    ```
+
+3.  **Konfigurasi Environment**
+    Salin file `env` menjadi `.env` untuk konfigurasi environment lokal Anda.
+    ```bash
+    copy env .env
+    ```
+    Buka file `.env` dan sesuaikan baris berikut:
+    ```
+    CI_ENVIRONMENT = development
+
+    app.baseURL = 'http://localhost:8080' # Sesuaikan dengan URL Anda
+
+    database.default.hostname = localhost
+    database.default.database = sabar_db # Nama database Anda
+    database.default.username = root
+    database.default.password = # Password database Anda
+    database.default.DBDriver = MySQLi
+    ```
+
+4.  **Setup Database**
+    - Buat database baru di MySQL dengan nama yang telah Anda tentukan di file `.env` (contoh: `sabar_db`).
+    - Jalankan migrasi untuk membuat semua tabel yang diperlukan oleh aplikasi.
+      ```bash
+      php spark migrate
+      ```
+
+5.  **Jalankan Aplikasi**
+    Anda dapat menggunakan server development bawaan CodeIgniter.
+    ```bash
+    php spark serve
+    ```
+    Aplikasi akan berjalan dan dapat diakses di `http://localhost:8080` (atau sesuai `app.baseURL` Anda).
+
+## Struktur Direktori Penting
+
+- `public/uploads/barang/images/`: Lokasi penyimpanan gambar barang yang diunggah.
+- `public/uploads/barang/documents/`: Lokasi penyimpanan dokumen BAST yang diunggah.
+- `public/uploads/barang/qrcodes/`: Lokasi penyimpanan file QR Code yang dihasilkan.
+
+Pastikan direktori-direktori di atas memiliki izin tulis (writable) oleh web server.
+
