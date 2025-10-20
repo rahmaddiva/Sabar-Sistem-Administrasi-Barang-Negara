@@ -31,6 +31,7 @@
                                     <th>Merk</th>
                                     <th>Tahun Perolehan</th>
                                     <th>Kondisi</th>
+                                    <th>Penanggung Jawab</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -87,7 +88,7 @@
         modalTitle.textContent = newsTitle;
 
         var deleteForm = document.getElementById('deleteForm');
-        deleteForm.action = '/hapus_berita/' + newsId;
+        deleteForm.action = '/delete-barang/' + newsId;
     });
 </script>
 

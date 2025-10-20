@@ -21,3 +21,6 @@ $routes->get('kelola-barang', 'BarangController::index');
 $routes->get('tambah-barang', 'BarangController::tambah');
 $routes->post('proses-barang', 'BarangController::proses_barang');
 $routes->get('detail-barang/(:num)', 'BarangController::detail/$1');
+$routes->get('edit-barang/(:num)', 'BarangController::edit/$1');
+$routes->post('update-barang/(:num)', 'BarangController::update/$1');
+$routes->post('delete-barang/(:num)', 'BarangController::delete/$1');
