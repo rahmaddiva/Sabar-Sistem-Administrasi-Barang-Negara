@@ -130,6 +130,8 @@ class BarangController extends BaseController
                 ]
             ],
             'kode_barang' => [
+                // tambahkan is_unique jika kode barang harus berbeda/unik
+                // jika tidak ingin unik, hapus saja is_unique
                 'rules' => 'required|is_unique[barang.kode_barang]',
                 'errors' => [
                     'required' => 'Kode Barang wajib diisi',

@@ -15,12 +15,12 @@
         name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Login - Pages</title>
+    <title>Login</title>
 
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="<?= base_url(); ?>assets/img/favicon/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="<?= base_url(); ?>assets/img/favicon/logo_banjarmasin.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -61,42 +61,69 @@
                 <div class="card">
                     <div class="card-body">
 
+                        <!-- Logo -->
+                        <div class="app-brand justify-content-center mb-4">
+                            <a href="/" class="app-brand-link gap-2">
+                                <span class="app-brand-logo demo">
+                                    <img src="<?= base_url(); ?>assets/img/favicon/logo_banjarmasin.png" alt="Logo" height="60">
+                                </span>
+                            </a>
+                        </div>
                         <!-- /Logo -->
-                        <h4 class="mb-2">Selamat Datang 👋</h4>
-                        <p class="mb-4">Silakan masuk ke akun anda </p>
+
+                        <h4 class="mb-2 text-center">SABAR - Sistem Administrasi Barang 👋</h4>
+                        <p class="mb-4 text-center">Sistem Administrasi Barang Milik Negara</p>
+
+                        <?php if (session()->has('error')) : ?>
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <?= session('error') ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (session()->has('success')) : ?>
+                            <div class="alert alert-success alert-dismissible" role="alert">
+                                <?= session('success') ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+
                         <form id="formAuthentication" class="mb-3" action="<?= base_url('proses-login') ?>" method="POST">
                             <?= csrf_field() ?>
                             <div class="mb-3">
-                                <label for="email" class="form-label">Username</label>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    id="email"
-                                    name="username"
-                                    placeholder="Masukan username"
-                                    autofocus />
+                                <label for="username" class="form-label">Username</label>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text"><i class="bx bx-user"></i></span>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="username"
+                                        name="username"
+                                        placeholder="Masukkan username"
+                                        autofocus />
+                                </div>
                             </div>
                             <div class="mb-3 form-password-toggle">
                                 <div class="d-flex justify-content-between">
                                     <label class="form-label" for="password">Password</label>
-                                    <a href="auth-forgot-password-basic.html">
-                                        <small>Forgot Password?</small>
-                                    </a>
                                 </div>
                                 <div class="input-group input-group-merge">
+                                    <span class="input-group-text"><i class="bx bx-lock-alt"></i></span>
                                     <input
                                         type="password"
                                         id="password"
                                         class="form-control"
                                         name="password"
-                                        placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                        placeholder="Masukkan password"
                                         aria-describedby="password" />
                                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
+                                <button class="btn btn-primary d-grid w-100" type="submit">
+                                    <i class="bx bx-log-in-circle me-2"></i>Masuk
+                                </button>
                             </div>
                         </form>
 
