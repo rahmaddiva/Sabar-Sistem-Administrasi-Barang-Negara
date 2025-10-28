@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\BarangModel;
+use TCPDF;
 
 class BarangController extends BaseController
 {
@@ -20,13 +19,12 @@ class BarangController extends BaseController
     {
         // menampilkan data barang menggunakan datatable server side
         if ($this->request->isAJAX()) {
-            $draw = $this->request->getVar('draw');
-            $start = $this->request->getVar('start');
+            $draw   = $this->request->getVar('draw');
+            $start  = $this->request->getVar('start');
             $length = $this->request->getVar('length');
             $search = $this->request->getVar('search')['value'];
 
-
-            // total semua data 
+            // total semua data
             $totalData = $this->barangModel->countAll();
 
             // builder untuk filtering
@@ -54,15 +52,15 @@ class BarangController extends BaseController
             // simpan data array untuk datatable
 
             $data = [];
-            $no = $start + 1;
+            $no   = $start + 1;
             foreach ($barang as $row) {
                 // button edit news
                 $editbtn = '<a href="' . base_url('edit-barang/' . $row['id']) . '" class="btn btn-outline-primary "><i class="bx bx-edit"></i></a>';
                 // button hapus/delete
                 $deleteBtn = '<button class="btn btn-outline-danger"
-                data-bs-toggle="modal" 
-                data-bs-target="#deleteModal" 
-                data-id="' . $row['id'] . '" 
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                data-id="' . $row['id'] . '"
                 data-title="' . esc($row['merk']) . '"><i class="bx bx-trash"></i></button>';
                 // button detail news
                 $detailBtn = '<a href="' . base_url('detail-barang/' . $row['id']) . '" class="btn btn-outline-secondary"><i class="bx bx-show"></i></a>';
@@ -75,20 +73,20 @@ class BarangController extends BaseController
                     esc($row['tahun_perolehan']),
                     esc($row['penanggung_jawab']),
                     '<span class="badge bg-info">' . esc($row['kondisi']) . '</span>',
-                    $editbtn . ' ' . $deleteBtn . ' ' . $detailBtn
+                    $editbtn . ' ' . $deleteBtn . ' ' . $detailBtn,
                 ];
             }
             $output = [
-                "draw" => $draw,
-                "recordsTotal" => $totalData,
+                "draw"            => $draw,
+                "recordsTotal"    => $totalData,
                 "recordsFiltered" => $totalFiltered,
-                "data" => $data,
+                "data"            => $data,
             ];
             return $this->response->setJSON($output);
         }
 
         $data = [
-            'title' => 'Kelola Data Barang'
+            'title' => 'Kelola Data Barang',
         ];
         return view('barang/index', $data);
     }
@@ -96,12 +94,12 @@ class BarangController extends BaseController
     public function tambah()
     {
         $kategoriModel = new \App\Models\KategoriModel();
-        $lokasiModel = new \App\Models\LokasiModel();
+        $lokasiModel   = new \App\Models\LokasiModel();
 
         $data = [
-            'title' => 'Tambah Barang',
+            'title'     => 'Tambah Barang',
             'kategoris' => $kategoriModel->findAll(),
-            'lokasis' => $lokasiModel->findAll()
+            'lokasis'   => $lokasiModel->findAll(),
         ];
 
         return view('barang/tambah', $data);
@@ -111,104 +109,104 @@ class BarangController extends BaseController
     {
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'id_kategori' => [
-                'rules' => 'required',
+            'id_kategori'     => [
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Kategori wajib dipilih'
-                ]
+                    'required' => 'Kategori wajib dipilih',
+                ],
             ],
-            'id_lokasi' => [
-                'rules' => 'required',
+            'id_lokasi'       => [
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Lokasi wajib dipilih'
-                ]
+                    'required' => 'Lokasi wajib dipilih',
+                ],
             ],
-            'nama_barang' => [
-                'rules' => 'required',
+            'nama_barang'     => [
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Nama Barang wajib diisi'
-                ]
+                    'required' => 'Nama Barang wajib diisi',
+                ],
             ],
-            'kode_barang' => [
+            'kode_barang'     => [
                 // tambahkan is_unique jika kode barang harus berbeda/unik
                 // jika tidak ingin unik, hapus saja is_unique
-                'rules' => 'required|is_unique[barang.kode_barang]',
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Kode Barang wajib diisi',
-                    'is_unique' => 'Kode Barang sudah digunakan'
-                ]
+                    'required'  => 'Kode Barang wajib diisi',
+                    'is_unique' => 'Kode Barang sudah digunakan',
+                ],
             ],
-            'merk' => [
-                'rules' => 'required',
+            'merk'            => [
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Merk wajib diisi'
-                ]
+                    'required' => 'Merk wajib diisi',
+                ],
             ],
             'tahun_perolehan' => [
-                'rules' => 'required|numeric',
+                'rules'  => 'required|numeric',
                 'errors' => [
                     'required' => 'Tahun Perolehan wajib diisi',
-                    'numeric' => 'Tahun Perolehan harus berupa angka'
-                ]
+                    'numeric'  => 'Tahun Perolehan harus berupa angka',
+                ],
             ],
-            'kondisi' => [
-                'rules' => 'required',
+            'kondisi'         => [
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Kondisi wajib diisi'
-                ]
+                    'required' => 'Kondisi wajib diisi',
+                ],
             ],
-            'gambar' => [
-                'rules' => 'max_size[gambar,5120]|is_image[gambar]|mime_in[gambar,image/jpg,image/jpeg,image/png]',
+            'gambar'          => [
+                'rules'  => 'max_size[gambar,5120]|is_image[gambar]|mime_in[gambar,image/jpg,image/jpeg,image/png]',
                 'errors' => [
                     'max_size' => 'Ukuran gambar terlalu besar (max 5MB)',
                     'is_image' => 'File yang dipilih bukan gambar',
-                    'mime_in' => 'Format gambar tidak didukung'
-                ]
+                    'mime_in'  => 'Format gambar tidak didukung',
+                ],
             ],
-            'dokumen_bast' => [
-                'rules' => 'max_size[dokumen_bast,10240]|mime_in[dokumen_bast,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document]',
+            'dokumen_bast'    => [
+                'rules'  => 'max_size[dokumen_bast,10240]|mime_in[dokumen_bast,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document]',
                 'errors' => [
                     'max_size' => 'Ukuran dokumen terlalu besar (max 10MB)',
-                    'mime_in' => 'Format dokumen tidak didukung (PDF/DOC/DOCX)'
-                ]
-            ]
+                    'mime_in'  => 'Format dokumen tidak didukung (PDF/DOC/DOCX)',
+                ],
+            ],
         ]);
 
         // jika validasi gagal maka muncul pesan error
-        if (!$validation->withRequest($this->request)->run()) {
+        if (! $validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
         // proses upload gambar jika ada
-        $gambar = $this->request->getFile('gambar');
+        $gambar     = $this->request->getFile('gambar');
         $namaGambar = '';
-        if ($gambar->isValid() && !$gambar->hasMoved()) {
+        if ($gambar->isValid() && ! $gambar->hasMoved()) {
             $namaGambar = $gambar->getRandomName();
             $gambar->move('uploads/barang/images', $namaGambar);
         }
 
         // proses upload dokumen bast jika ada
-        $dokumen = $this->request->getFile('dokumen_bast');
+        $dokumen     = $this->request->getFile('dokumen_bast');
         $namaDokumen = '';
-        if ($dokumen->isValid() && !$dokumen->hasMoved()) {
+        if ($dokumen->isValid() && ! $dokumen->hasMoved()) {
             $namaDokumen = $dokumen->getRandomName();
             $dokumen->move('uploads/barang/documents', $namaDokumen);
         }
 
         // siapkan data untuk disimpan
         $data = [
-            'id_kategori' => $this->request->getPost('id_kategori'),
-            'id_lokasi' => $this->request->getPost('id_lokasi'),
-            'nama_barang' => $this->request->getPost('nama_barang'),
-            'kode_barang' => $this->request->getPost('kode_barang'),
-            'merk' => $this->request->getPost('merk'),
-            'nilai_perolehan' => $this->request->getPost('nilai_perolehan'),
+            'id_kategori'      => $this->request->getPost('id_kategori'),
+            'id_lokasi'        => $this->request->getPost('id_lokasi'),
+            'nama_barang'      => $this->request->getPost('nama_barang'),
+            'kode_barang'      => $this->request->getPost('kode_barang'),
+            'merk'             => $this->request->getPost('merk'),
+            'nilai_perolehan'  => $this->request->getPost('nilai_perolehan'),
             'penanggung_jawab' => $this->request->getPost('penanggung_jawab'),
-            'tahun_perolehan' => $this->request->getPost('tahun_perolehan'),
-            'kondisi' => $this->request->getPost('kondisi'),
-            'gambar' => $namaGambar,
-            'dokumen_bast' => $namaDokumen,
-            'keterangan' => $this->request->getPost('keterangan')
+            'tahun_perolehan'  => $this->request->getPost('tahun_perolehan'),
+            'kondisi'          => $this->request->getPost('kondisi'),
+            'gambar'           => $namaGambar,
+            'dokumen_bast'     => $namaDokumen,
+            'keterangan'       => $this->request->getPost('keterangan'),
         ];
 
         // generate QR code with image URL
@@ -218,32 +216,71 @@ class BarangController extends BaseController
         }
 
         $qrData = json_encode([
-            'kode_barang' => $data['kode_barang'],
-            'nama_barang' => $data['nama_barang'],
-            'merk' => $data['merk'],
-            'tahun_perolehan' => $data['tahun_perolehan'],
-            'kondisi' => $data['kondisi'],
+            'kode_barang'      => $data['kode_barang'],
+            'nama_barang'      => $data['nama_barang'],
+            'merk'             => $data['merk'],
+            'tahun_perolehan'  => $data['tahun_perolehan'],
+            'kondisi'          => $data['kondisi'],
             'penanggung_jawab' => $data['penanggung_jawab'],
-            'gambar_url' => $imageUrl,
-            'detail_url' => base_url('detail-barang/' . $data['kode_barang'])
+            'gambar_url'       => $imageUrl,
+            'detail_url'       => base_url('detail-barang/' . $data['kode_barang']),
         ]);
 
-        // QR code options
-        $options = new \chillerlan\QRCode\QROptions([
-            'outputType' => \chillerlan\QRCode\QRCode::OUTPUT_IMAGE_PNG,
-            'eccLevel' => \chillerlan\QRCode\QRCode::ECC_L,
-            'scale' => 5,
-            'imageBase64' => false,
-        ]);
+        $logoPath = FCPATH . 'assets/img/favicon/Logo-Bawaslu-2.png'; // pastikan path benar
 
-        // Create QR code instance with options
-        $qrCode = new \chillerlan\QRCode\QRCode($options);
-        $qrFileName = 'qr_' . $data['kode_barang'] . '.png';
+        if (file_exists($logoPath)) {
+            $qrImage   = imagecreatefrompng($qrFilePath);
+            $logoImage = imagecreatefrompng($logoPath);
 
-        // Save QR code directly as PNG file
-        $qrCode->render($qrData, 'uploads/barang/qrcodes/' . $qrFileName);
+            $qrWidth    = imagesx($qrImage);
+            $qrHeight   = imagesy($qrImage);
+            $logoWidth  = imagesx($logoImage);
+            $logoHeight = imagesy($logoImage);
 
-        // tambahkan nama file QR code ke data
+            // Skala logo sekitar 18% dari QR code
+            $logoTargetWidth  = $qrWidth * 0.18;
+            $scale            = $logoTargetWidth / $logoWidth;
+            $logoTargetHeight = $logoHeight * $scale;
+
+            // Posisi tengah logo
+            $logoX = ($qrWidth - $logoTargetWidth) / 2;
+            $logoY = ($qrHeight - $logoTargetHeight) / 2;
+
+                                                   // Tambahkan background putih di bawah logo untuk kontras
+            $whiteBgSize = $logoTargetWidth * 1.2; // sedikit lebih besar dari logo
+            $whiteBgX    = ($qrWidth - $whiteBgSize) / 2;
+            $whiteBgY    = ($qrHeight - $whiteBgSize) / 2;
+
+            $white = imagecolorallocate($qrImage, 255, 255, 255);
+            imagefilledrectangle(
+                $qrImage,
+                $whiteBgX,
+                $whiteBgY,
+                $whiteBgX + $whiteBgSize,
+                $whiteBgY + $whiteBgSize,
+                $white
+            );
+
+            // Tempelkan logo di atas background putih
+            imagecopyresampled(
+                $qrImage,
+                $logoImage,
+                $logoX,
+                $logoY,
+                0,
+                0,
+                $logoTargetWidth,
+                $logoTargetHeight,
+                $logoWidth,
+                $logoHeight
+            );
+
+            // Simpan hasil akhir
+            imagepng($qrImage, $qrFilePath);
+            imagedestroy($qrImage);
+            imagedestroy($logoImage);
+        }
+
         $data['qr_code'] = $qrFileName;
 
         // simpan ke database
@@ -268,22 +305,22 @@ class BarangController extends BaseController
     public function detail($id)
     {
         $kategoriModel = new \App\Models\KategoriModel();
-        $lokasiModel = new \App\Models\LokasiModel();
+        $lokasiModel   = new \App\Models\LokasiModel();
 
         $barang = $this->barangModel->find($id);
-        if (!$barang) {
+        if (! $barang) {
             return redirect()->to('kelola-barang')->with('error', 'Data barang tidak ditemukan');
         }
 
         // get kategori dan lokasi
         $kategori = $kategoriModel->find($barang['id_kategori']);
-        $lokasi = $lokasiModel->find($barang['id_lokasi']);
+        $lokasi   = $lokasiModel->find($barang['id_lokasi']);
 
         $data = [
-            'title' => 'Detail Barang',
-            'barang' => $barang,
+            'title'    => 'Detail Barang',
+            'barang'   => $barang,
             'kategori' => $kategori,
-            'lokasi' => $lokasi
+            'lokasi'   => $lokasi,
         ];
 
         return view('barang/detail', $data);
@@ -292,18 +329,18 @@ class BarangController extends BaseController
     public function edit($id)
     {
         $kategoriModel = new \App\Models\KategoriModel();
-        $lokasiModel = new \App\Models\LokasiModel();
+        $lokasiModel   = new \App\Models\LokasiModel();
 
         $barang = $this->barangModel->find($id);
-        if (!$barang) {
+        if (! $barang) {
             return redirect()->to('kelola-barang')->with('error', 'Data barang tidak ditemukan');
         }
 
         $data = [
-            'title' => 'Edit Barang',
-            'barang' => $barang,
+            'title'     => 'Edit Barang',
+            'barang'    => $barang,
             'kategoris' => $kategoriModel->findAll(),
-            'lokasis' => $lokasiModel->findAll()
+            'lokasis'   => $lokasiModel->findAll(),
         ];
 
         return view('barang/edit', $data);
@@ -312,81 +349,81 @@ class BarangController extends BaseController
     public function update($id)
     {
         $barang = $this->barangModel->find($id);
-        if (!$barang) {
+        if (! $barang) {
             return redirect()->to('kelola-barang')->with('error', 'Data barang tidak ditemukan');
         }
 
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'id_kategori' => [
-                'rules' => 'required',
+            'id_kategori'     => [
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Kategori wajib dipilih'
-                ]
+                    'required' => 'Kategori wajib dipilih',
+                ],
             ],
-            'id_lokasi' => [
-                'rules' => 'required',
+            'id_lokasi'       => [
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Lokasi wajib dipilih'
-                ]
+                    'required' => 'Lokasi wajib dipilih',
+                ],
             ],
-            'nama_barang' => [
-                'rules' => 'required',
+            'nama_barang'     => [
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Nama Barang wajib diisi'
-                ]
+                    'required' => 'Nama Barang wajib diisi',
+                ],
             ],
-            'kode_barang' => [
-                'rules' => 'required|is_unique[barang.kode_barang,id,' . $id . ']',
+            'kode_barang'     => [
+                'rules'  => 'required|is_unique[barang.kode_barang,id,' . $id . ']',
                 'errors' => [
-                    'required' => 'Kode Barang wajib diisi',
-                    'is_unique' => 'Kode Barang sudah digunakan'
-                ]
+                    'required'  => 'Kode Barang wajib diisi',
+                    'is_unique' => 'Kode Barang sudah digunakan',
+                ],
             ],
-            'merk' => [
-                'rules' => 'required',
+            'merk'            => [
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Merk wajib diisi'
-                ]
+                    'required' => 'Merk wajib diisi',
+                ],
             ],
             'tahun_perolehan' => [
-                'rules' => 'required|numeric',
+                'rules'  => 'required|numeric',
                 'errors' => [
                     'required' => 'Tahun Perolehan wajib diisi',
-                    'numeric' => 'Tahun Perolehan harus berupa angka'
-                ]
+                    'numeric'  => 'Tahun Perolehan harus berupa angka',
+                ],
             ],
-            'kondisi' => [
-                'rules' => 'required',
+            'kondisi'         => [
+                'rules'  => 'required',
                 'errors' => [
-                    'required' => 'Kondisi wajib diisi'
-                ]
+                    'required' => 'Kondisi wajib diisi',
+                ],
             ],
-            'gambar' => [
-                'rules' => 'max_size[gambar,5120]|is_image[gambar]|mime_in[gambar,image/jpg,image/jpeg,image/png]',
+            'gambar'          => [
+                'rules'  => 'max_size[gambar,5120]|is_image[gambar]|mime_in[gambar,image/jpg,image/jpeg,image/png]',
                 'errors' => [
                     'max_size' => 'Ukuran gambar terlalu besar (max 5MB)',
                     'is_image' => 'File yang dipilih bukan gambar',
-                    'mime_in' => 'Format gambar tidak didukung'
-                ]
+                    'mime_in'  => 'Format gambar tidak didukung',
+                ],
             ],
-            'dokumen_bast' => [
-                'rules' => 'max_size[dokumen_bast,10240]|mime_in[dokumen_bast,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document]',
+            'dokumen_bast'    => [
+                'rules'  => 'max_size[dokumen_bast,10240]|mime_in[dokumen_bast,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document]',
                 'errors' => [
                     'max_size' => 'Ukuran dokumen terlalu besar (max 10MB)',
-                    'mime_in' => 'Format dokumen tidak didukung (PDF/DOC/DOCX)'
-                ]
-            ]
+                    'mime_in'  => 'Format dokumen tidak didukung (PDF/DOC/DOCX)',
+                ],
+            ],
         ]);
 
-        if (!$validation->withRequest($this->request)->run()) {
+        if (! $validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
         // proses upload gambar jika ada
-        $gambar = $this->request->getFile('gambar');
+        $gambar     = $this->request->getFile('gambar');
         $namaGambar = $barang['gambar']; // keep existing image if no new upload
-        if ($gambar->isValid() && !$gambar->hasMoved()) {
+        if ($gambar->isValid() && ! $gambar->hasMoved()) {
             // delete old image if exists
             if ($barang['gambar'] && file_exists('uploads/barang/images/' . $barang['gambar'])) {
                 unlink('uploads/barang/images/' . $barang['gambar']);
@@ -396,9 +433,9 @@ class BarangController extends BaseController
         }
 
         // proses upload dokumen bast jika ada
-        $dokumen = $this->request->getFile('dokumen_bast');
+        $dokumen     = $this->request->getFile('dokumen_bast');
         $namaDokumen = $barang['dokumen_bast']; // keep existing document if no new upload
-        if ($dokumen->isValid() && !$dokumen->hasMoved()) {
+        if ($dokumen->isValid() && ! $dokumen->hasMoved()) {
             // delete old document if exists
             if ($barang['dokumen_bast'] && file_exists('uploads/barang/documents/' . $barang['dokumen_bast'])) {
                 unlink('uploads/barang/documents/' . $barang['dokumen_bast']);
@@ -409,18 +446,18 @@ class BarangController extends BaseController
 
         // siapkan data untuk disimpan
         $data = [
-            'id_kategori' => $this->request->getPost('id_kategori'),
-            'id_lokasi' => $this->request->getPost('id_lokasi'),
-            'nama_barang' => $this->request->getPost('nama_barang'),
-            'kode_barang' => $this->request->getPost('kode_barang'),
-            'merk' => $this->request->getPost('merk'),
-            'nilai_perolehan' => $this->request->getPost('nilai_perolehan'),
+            'id_kategori'      => $this->request->getPost('id_kategori'),
+            'id_lokasi'        => $this->request->getPost('id_lokasi'),
+            'nama_barang'      => $this->request->getPost('nama_barang'),
+            'kode_barang'      => $this->request->getPost('kode_barang'),
+            'merk'             => $this->request->getPost('merk'),
+            'nilai_perolehan'  => $this->request->getPost('nilai_perolehan'),
             'penanggung_jawab' => $this->request->getPost('penanggung_jawab'),
-            'tahun_perolehan' => $this->request->getPost('tahun_perolehan'),
-            'kondisi' => $this->request->getPost('kondisi'),
-            'gambar' => $namaGambar,
-            'dokumen_bast' => $namaDokumen,
-            'keterangan' => $this->request->getPost('keterangan')
+            'tahun_perolehan'  => $this->request->getPost('tahun_perolehan'),
+            'kondisi'          => $this->request->getPost('kondisi'),
+            'gambar'           => $namaGambar,
+            'dokumen_bast'     => $namaDokumen,
+            'keterangan'       => $this->request->getPost('keterangan'),
         ];
 
         // generate QR code only if essential data changed
@@ -431,7 +468,7 @@ class BarangController extends BaseController
             $barang['tahun_perolehan'] !== $data['tahun_perolehan'] ||
             $barang['kondisi'] !== $data['kondisi'] ||
             $barang['penanggung_jawab'] !== $data['penanggung_jawab'] ||
-            $barang['gambar'] !== $data['gambar'] // regenerate if image changes
+            $barang['gambar'] !== $data['gambar']// regenerate if image changes
         ) {
 
             // delete old QR code if exists
@@ -446,30 +483,93 @@ class BarangController extends BaseController
             }
 
             $qrData = json_encode([
-                'kode_barang' => $data['kode_barang'],
-                'nama_barang' => $data['nama_barang'],
-                'merk' => $data['merk'],
-                'tahun_perolehan' => $data['tahun_perolehan'],
-                'kondisi' => $data['kondisi'],
+                'kode_barang'      => $data['kode_barang'],
+                'nama_barang'      => $data['nama_barang'],
+                'merk'             => $data['merk'],
+                'tahun_perolehan'  => $data['tahun_perolehan'],
+                'kondisi'          => $data['kondisi'],
                 'penanggung_jawab' => $data['penanggung_jawab'],
-                'gambar_url' => $imageUrl,
-                'detail_url' => base_url('detail-barang/' . $data['kode_barang'])
+                'gambar_url'       => $imageUrl,
+                'detail_url'       => base_url('detail-barang/' . $data['kode_barang']),
             ]);
 
             // QR code options
             $options = new \chillerlan\QRCode\QROptions([
-                'outputType' => \chillerlan\QRCode\QRCode::OUTPUT_IMAGE_PNG,
-                'eccLevel' => \chillerlan\QRCode\QRCode::ECC_L,
-                'scale' => 5,
-                'imageBase64' => false,
+                'outputType'       => \chillerlan\QRCode\QRCode::OUTPUT_IMAGE_PNG,
+                'eccLevel'         => \chillerlan\QRCode\QRCode::ECC_H, // Tingkatkan ECC level untuk menutupi area logo
+                'scale'            => 5,
+                'imageBase64'      => false,
+                'logoSpaceWidth'   => 13,                                               // Lebar area kosong untuk logo
+                'logoSpaceHeight'  => 13,                                               // Tinggi area kosong untuk logo
+                'logo'             => FCPATH . 'assets/img/favicon/Logo-Bawaslu-2.png', // Path absolut ke file logo
+                'imageTransparent' => false,                                            // Pastikan background logo tidak transparan jika logo tidak punya alpha channel
             ]);
 
             // Create QR code instance with options
-            $qrCode = new \chillerlan\QRCode\QRCode($options);
+            $qrCode     = new \chillerlan\QRCode\QRCode($options);
             $qrFileName = 'qr_' . $data['kode_barang'] . '.png';
 
-            // Save QR code directly as PNG file
-            $qrCode->render($qrData, 'uploads/barang/qrcodes/' . $qrFileName);
+            // Generate QR code
+            $qrCode     = new \chillerlan\QRCode\QRCode($options);
+            $qrFilePath = 'uploads/barang/qrcodes/' . $qrFileName;
+            $qrCode->render($qrData, $qrFilePath);
+
+// Tambahkan logo di tengah QR code
+            $logoPath = FCPATH . 'assets/img/favicon/Logo-Bawaslu-2.png'; // pastikan path benar
+
+            if (file_exists($logoPath)) {
+                $qrImage   = imagecreatefrompng($qrFilePath);
+                $logoImage = imagecreatefrompng($logoPath);
+
+                $qrWidth    = imagesx($qrImage);
+                $qrHeight   = imagesy($qrImage);
+                $logoWidth  = imagesx($logoImage);
+                $logoHeight = imagesy($logoImage);
+
+                // Skala logo sekitar 18% dari QR code
+                $logoTargetWidth  = $qrWidth * 0.18;
+                $scale            = $logoTargetWidth / $logoWidth;
+                $logoTargetHeight = $logoHeight * $scale;
+
+                // Posisi tengah logo
+                $logoX = ($qrWidth - $logoTargetWidth) / 2;
+                $logoY = ($qrHeight - $logoTargetHeight) / 2;
+
+                                                       // Tambahkan background putih di bawah logo untuk kontras
+                $whiteBgSize = $logoTargetWidth * 1.2; // sedikit lebih besar dari logo
+                $whiteBgX    = ($qrWidth - $whiteBgSize) / 2;
+                $whiteBgY    = ($qrHeight - $whiteBgSize) / 2;
+
+                $white = imagecolorallocate($qrImage, 255, 255, 255);
+                imagefilledrectangle(
+                    $qrImage,
+                    $whiteBgX,
+                    $whiteBgY,
+                    $whiteBgX + $whiteBgSize,
+                    $whiteBgY + $whiteBgSize,
+                    $white
+                );
+
+                // Tempelkan logo di atas background putih
+                imagecopyresampled(
+                    $qrImage,
+                    $logoImage,
+                    $logoX,
+                    $logoY,
+                    0,
+                    0,
+                    $logoTargetWidth,
+                    $logoTargetHeight,
+                    $logoWidth,
+                    $logoHeight
+                );
+
+                // Simpan hasil akhir
+                imagepng($qrImage, $qrFilePath);
+                imagedestroy($qrImage);
+                imagedestroy($logoImage);
+            }
+
             $data['qr_code'] = $qrFileName;
         }
 
@@ -500,21 +600,36 @@ class BarangController extends BaseController
             ->join('lokasi', 'lokasi.id = barang.id_lokasi')
             ->findAll();
 
-        // Load DOMPDF
-        $dompdf = new \Dompdf\Dompdf(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
+        // Buat instance TCPDF
+        // 'L' untuk Landscape, 'mm' untuk unit, 'A4' untuk ukuran kertas
+        $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
 
-        // Load view into PDF
+        // Set informasi dokumen
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('SABAR System');
+        $pdf->SetTitle('Laporan Data Barang');
+        $pdf->SetSubject('Data Barang');
+
+        // Hapus header dan footer default
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+
+        // Set margin
+        $pdf->SetMargins(10, 10, 10);
+
+        // Tambah halaman
+        $pdf->AddPage();
+
+        // Render view ke dalam variabel HTML
         $html = view('barang/export_pdf', $data);
-        $dompdf->loadHtml($html);
 
-        // Set paper size and orientation
-        $dompdf->setPaper('A4', 'landscape');
+        // Tulis HTML ke PDF
+        $pdf->writeHTML($html, true, false, true, false, '');
 
-        // Render PDF
-        $dompdf->render();
-
-        // Stream PDF to browser
-        $dompdf->stream('data_barang_' . date('Y-m-d') . '.pdf', ['Attachment' => false]);
+        // Tutup dan kirim PDF ke browser
+        // 'I' berarti tampilkan inline di browser
+        $this->response->setContentType('application/pdf');
+        $pdf->Output('data_barang_' . date('Y-m-d') . '.pdf', 'I');
     }
 
     public function export_excel()
@@ -527,7 +642,7 @@ class BarangController extends BaseController
 
         // Create new Spreadsheet object
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
+        $sheet       = $spreadsheet->getActiveSheet();
 
         // Set document properties
         $spreadsheet->getProperties()
@@ -538,14 +653,14 @@ class BarangController extends BaseController
             ->setDescription('Daftar Barang dari Sistem Administrasi Barang');
 
         // Add header row
-        $sheet->setCellValue('A1', 'LAPORAN DATA BARANG');
-        $sheet->mergeCells('A1:J1');
+        $sheet->setCellValue('A1', 'DAFTAR INVENTARIS BARANG');
+        $sheet->mergeCells('A1:H1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Add date
         $sheet->setCellValue('A2', 'Tanggal: ' . date('d-m-Y'));
-        $sheet->mergeCells('A2:J2');
+        $sheet->mergeCells('A2:H2');
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Add headers
@@ -553,33 +668,31 @@ class BarangController extends BaseController
             'No',
             'Kode Barang',
             'Nama Barang',
-            'Kategori',
-            'Lokasi',
+            'Kondisi',
+            'Ruangan',
             'Merk',
-            'Nilai Perolehan',
-            'Penanggung Jawab',
             'Tahun',
-            'Kondisi'
+            'Penanggung Jawab',
         ];
 
         // Style for headers
         $headerStyle = [
-            'font' => [
-                'bold' => true,
+            'font'      => [
+                'bold'  => true,
                 'color' => ['rgb' => 'FFFFFF'],
             ],
-            'fill' => [
-                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+            'fill'      => [
+                'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                 'startColor' => ['rgb' => '4B5563'],
             ],
-            'borders' => [
+            'borders'   => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                 ],
             ],
             'alignment' => [
                 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
             ],
         ];
 
@@ -588,26 +701,20 @@ class BarangController extends BaseController
             $column = chr(65 + $index); // Convert number to letter (A, B, C, etc.)
             $sheet->setCellValue($column . '4', $header);
         }
-        $sheet->getStyle('A4:J4')->applyFromArray($headerStyle);
+        $sheet->getStyle('A4:H4')->applyFromArray($headerStyle);
 
         // Add data
         $row = 5;
-        $no = 1;
+        $no  = 1;
         foreach ($barang as $item) {
             $sheet->setCellValue('A' . $row, $no++);
             $sheet->setCellValue('B' . $row, $item['kode_barang']);
             $sheet->setCellValue('C' . $row, $item['nama_barang']);
-            $sheet->setCellValue('D' . $row, $item['nama_kategori']);
+            $sheet->setCellValue('D' . $row, $item['kondisi']);
             $sheet->setCellValue('E' . $row, $item['nama_lokasi']);
             $sheet->setCellValue('F' . $row, $item['merk']);
-            $sheet->setCellValue('G' . $row, $item['nilai_perolehan']);
+            $sheet->setCellValue('G' . $row, $item['tahun_perolehan']);
             $sheet->setCellValue('H' . $row, $item['penanggung_jawab']);
-            $sheet->setCellValue('I' . $row, $item['tahun_perolehan']);
-            $sheet->setCellValue('J' . $row, $item['kondisi']);
-
-            // Format number for nilai_perolehan
-            $sheet->getStyle('G' . $row)->getNumberFormat()
-                ->setFormatCode('#,##0');
 
             $row++;
         }
@@ -620,10 +727,10 @@ class BarangController extends BaseController
                 ],
             ],
         ];
-        $sheet->getStyle('A4:J' . ($row - 1))->applyFromArray($dataStyle);
+        $sheet->getStyle('A4:H' . ($row - 1))->applyFromArray($dataStyle);
 
         // Auto size columns
-        foreach (range('A', 'J') as $column) {
+        foreach (range('A', 'H') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
@@ -644,7 +751,7 @@ class BarangController extends BaseController
     {
         // hapus data barang
         $barang = $this->barangModel->find($id);
-        if (!$barang) {
+        if (! $barang) {
             return redirect()->to('kelola-barang')->with('error', 'Data barang tidak ditemukan');
         }
 

@@ -1,0 +1,14 @@
+- ganti nama label dokumen bast jadi dokumen saja ( Done )
+- konek ke database excel 
+- kode barang belum bisa digunakan untuk lebih satu barang ( Done )
+- tambah menu master aset untuk menampilkan semua database 
+- landingpage scan barang 
+- logo bawaslu ( Done )
+- tambahkan menu hapus, lihat dan download pada gambar dan dokumen bast (done)
+- logo bawaslu di tengah pada qrcode (done)
+- qrcode di scan masih berupa text, 
+- 
+
+sistem
+- dokumen bast tidak muncul di halaman detail (done)
+- tampilan laporan pdf atau excel seperti berikut (done)

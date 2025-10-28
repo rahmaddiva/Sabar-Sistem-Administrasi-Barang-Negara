@@ -156,15 +156,9 @@
                                         $isPdf = strtolower($ext) === 'pdf';
                                         ?>
                                         <?php if ($isPdf) : ?>
-                                            <div class="embed-responsive mb-3" style="height: 200px;">
-                                                <embed src="<?= base_url('uploads/barang/documents/' . $barang['dokumen_bast']) ?>"
-                                                    type="application/pdf" width="100%" height="100%">
-                                            </div>
+                                           
                                         <?php else : ?>
-                                            <div class="mb-3">
-                                                <i class="bx bx-file fs-1"></i>
-                                                <p class="mb-2"><?= esc($barang['dokumen_bast']) ?></p>
-                                            </div>
+                                            
                                         <?php endif; ?>
                                         <div>
                                             <?php if ($isPdf) : ?>

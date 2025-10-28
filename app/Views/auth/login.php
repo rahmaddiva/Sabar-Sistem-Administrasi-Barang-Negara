@@ -6,7 +6,7 @@
     class="light-style customizer-hide"
     dir="ltr"
     data-theme="theme-default"
-    data-assets-path="<?= base_url(); ?>assets/"
+    data-assets-path="<?php echo base_url(); ?>assets/"
     data-template="vertical-menu-template-free">
 
 <head>
@@ -20,7 +20,7 @@
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="<?= base_url(); ?>assets/img/favicon/logo_banjarmasin.png" />
+    <link rel="icon" type="image/x-icon" href="<?php echo base_url(); ?>assets/img/favicon/bawaslu_icon.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -30,25 +30,25 @@
         rel="stylesheet" />
 
     <!-- Icons. Uncomment required icon fonts -->
-    <link rel="stylesheet" href="<?= base_url(); ?>assets/vendor/fonts/boxicons.css" />
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/vendor/fonts/boxicons.css" />
 
     <!-- Core CSS -->
-    <link rel="stylesheet" href="<?= base_url(); ?>assets/vendor/css/core.css" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="<?= base_url(); ?>assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="<?= base_url(); ?>assets/css/demo.css" />
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/vendor/css/core.css" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/demo.css" />
 
     <!-- Vendors CSS -->
-    <link rel="stylesheet" href="<?= base_url(); ?>assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
     <!-- Page CSS -->
     <!-- Page -->
-    <link rel="stylesheet" href="<?= base_url(); ?>assets/vendor/css/pages/page-auth.css" />
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/vendor/css/pages/page-auth.css" />
     <!-- Helpers -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-    <script src="<?= base_url(); ?>assets/vendor/js/helpers.js"></script>
+    <script src="<?php echo base_url(); ?>assets/vendor/js/helpers.js"></script>
 
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
-    <script src="<?= base_url(); ?>assets/js/config.js"></script>
+    <script src="<?php echo base_url(); ?>assets/js/config.js"></script>
 </head>
 
 <body>
@@ -65,31 +65,31 @@
                         <div class="app-brand justify-content-center mb-4">
                             <a href="/" class="app-brand-link gap-2">
                                 <span class="app-brand-logo demo">
-                                    <img src="<?= base_url(); ?>assets/img/favicon/logo_banjarmasin.png" alt="Logo" height="60">
+                                    <img src="<?php echo base_url(); ?>assets/img/favicon/bawaslu.png" alt="Logo" height="60">
                                 </span>
                             </a>
                         </div>
                         <!-- /Logo -->
 
-                        <h4 class="mb-2 text-center">SABAR - Sistem Administrasi Barang 👋</h4>
+                        <h4 class="mb-2 text-center">SABAR - Sistem Administrasi Barang</h4>
                         <p class="mb-4 text-center">Sistem Administrasi Barang Milik Negara</p>
 
-                        <?php if (session()->has('error')) : ?>
+                        <?php if (session()->has('error')): ?>
                             <div class="alert alert-danger alert-dismissible" role="alert">
-                                <?= session('error') ?>
+                                <?php echo session('error') ?>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         <?php endif; ?>
 
-                        <?php if (session()->has('success')) : ?>
+                        <?php if (session()->has('success')): ?>
                             <div class="alert alert-success alert-dismissible" role="alert">
-                                <?= session('success') ?>
+                                <?php echo session('success') ?>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         <?php endif; ?>
 
-                        <form id="formAuthentication" class="mb-3" action="<?= base_url('proses-login') ?>" method="POST">
-                            <?= csrf_field() ?>
+                        <form id="formAuthentication" class="mb-3" action="<?php echo base_url('proses-login') ?>" method="POST">
+                            <?php echo csrf_field() ?>
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
                                 <div class="input-group input-group-merge">
@@ -121,64 +121,28 @@
                             </div>
 
                             <div class="mb-3">
-                                <button class="btn btn-primary d-grid w-100" type="submit">
+                                <button class="btn btn-danger d-grid w-100" type="submit">
                                     <i class="bx bx-log-in-circle me-2"></i>Masuk
                                 </button>
                             </div>
                         </form>
-
-                        <p class="text-center">
-                            <span>New on our platform?</span>
-                            <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#registerModal">
-                                Create an account
-                            </button>
-
-                        </p>
                     </div>
                 </div>
                 <!-- /Register -->
             </div>
         </div>
     </div>
-    <!-- modal -->
-    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="registerModalLabel">Register</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="<?= base_url('proses-register') ?>" method="POST">
-                        <?= csrf_field() ?>
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Register</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
 
 
 
     <!-- Core JS (jQuery HARUS paling atas sebelum toastr dipanggil) -->
-    <script src="<?= base_url(); ?>assets/vendor/libs/jquery/jquery.js"></script>
-    <script src="<?= base_url(); ?>assets/vendor/libs/popper/popper.js"></script>
-    <script src="<?= base_url(); ?>assets/vendor/js/bootstrap.js"></script>
-    <script src="<?= base_url(); ?>assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-    <script src="<?= base_url(); ?>assets/vendor/js/menu.js"></script>
+    <script src="<?php echo base_url(); ?>assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="<?php echo base_url(); ?>assets/vendor/libs/popper/popper.js"></script>
+    <script src="<?php echo base_url(); ?>assets/vendor/js/bootstrap.js"></script>
+    <script src="<?php echo base_url(); ?>assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="<?php echo base_url(); ?>assets/vendor/js/menu.js"></script>
 
     <!-- Toastr -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
@@ -201,12 +165,12 @@
 
             // Flashdata error tunggal
             <?php if (session()->getFlashdata('error')): ?>
-                toastr.error('<?= esc(session()->getFlashdata('error'), 'js') ?>');
+                toastr.error('<?php echo esc(session()->getFlashdata('error'), 'js') ?>');
             <?php endif; ?>
 
             // Flashdata banyak error (array errors)
             <?php if (session()->getFlashdata('errors')): ?>
-                let errors = <?php echo json_encode(session()->getFlashdata('errors')); ?>;
+                let errors =<?php echo json_encode(session()->getFlashdata('errors')); ?>;
                 let errorMessage = '';
                 for (let key in errors) {
                     if (errors.hasOwnProperty(key)) {
@@ -218,23 +182,23 @@
 
             // Flashdata sukses
             <?php if (session()->getFlashdata('success')): ?>
-                toastr.success('<?= esc(session()->getFlashdata('success'), 'js') ?>');
+                toastr.success('<?php echo esc(session()->getFlashdata('success'), 'js') ?>');
             <?php endif; ?>
 
             // Flashdata peringatan (opsional)
             <?php if (session()->getFlashdata('warning')): ?>
-                toastr.warning('<?= esc(session()->getFlashdata('warning'), 'js') ?>');
+                toastr.warning('<?php echo esc(session()->getFlashdata('warning'), 'js') ?>');
             <?php endif; ?>
 
             // Flashdata info (opsional)
             <?php if (session()->getFlashdata('info')): ?>
-                toastr.info('<?= esc(session()->getFlashdata('info'), 'js') ?>');
+                toastr.info('<?php echo esc(session()->getFlashdata('info'), 'js') ?>');
             <?php endif; ?>
         });
     </script>
 
     <!-- Main JS -->
-    <script src="<?= base_url(); ?>assets/js/main.js"></script>
+    <script src="<?php echo base_url(); ?>assets/js/main.js"></script>
 
 </body>
 

@@ -4,103 +4,125 @@
 <head>
     <meta charset="utf-8">
     <title>Data Barang</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 11pt;
-        }
+ <style>
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 9pt;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    table.tabel,
+    table.tabel td,
+    table.tabel th {
+        border: 1px solid black;
+    }
 
-        .header h2 {
-            margin: 0;
-            padding: 0;
-        }
+    table.tabel {
+        border-collapse: collapse;
+        width: 100%;
+    }
 
-        .header p {
-            margin: 5px 0;
-        }
+    .header-table {
+        width: 100%;
+        border-bottom: 2px solid black;
+        padding-bottom: 5px;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
+    .header-text {
+        text-align: center;
+    }
 
-        th,
-        td {
-            border: 1px solid #000;
-            padding: 5px;
-            font-size: 10pt;
-        }
+    .header-main-text {
+        font-weight: bold;
+        font-size: 14pt;
+    }
 
-        th {
-            background-color: #f0f0f0;
-            font-weight: bold;
-            text-align: center;
-        }
+    .header-sub-text {
+        font-size: 9pt;
+    }
 
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
+    .signature-block {
+        width: 100%;
+        text-align: right;
+    }
 
-        .footer {
-            margin-top: 20px;
-            text-align: right;
-        }
+    .signature {
+        display: inline-block;
 
-        .page-break {
-            page-break-after: always;
-        }
-    </style>
+        width: 300px; /* Adjust width as needed */
+    }
+</style>
 </head>
 
 <body>
-    <div class="header">
-        <h2>LAPORAN DATA BARANG</h2>
-        <p>Tanggal: <?= date('d-m-Y') ?></p>
-    </div>
-
-    <table>
+    <table class="header-table">
+        <tr>
+            <td style="width: 15%; text-align: left;"><img src="<?php echo FCPATH . 'assets/img/favicon/logo_kalsel.png' ?>" alt="Logo Pemerintah Kalimantan Selatan" width="80"></td>
+            <td style="width: 70%;" class="header-text">
+                <div class="header-main-text">LAPORAN INVENTARIS BARANG MILIK NEGARA</div>
+                <div class="header-main-text">BADAN PENGAWAS PEMILIHAN UMUM</div>
+                <div class="header-sub-text">Jl.R.E Martadinata No.3 Banjarmasin 7000, Telp. (0511) 3360-222 Fax. (0511) 3362766, E-mail : Sekretariat@bawaslukalselprov.info. www.bawaslukalselprov.info/go.id</div>
+            </td>
+            <td style="width: 15%; text-align: right;"><img src="<?php echo FCPATH . 'assets/img/favicon/Logo-Bawaslu-2.png' ?>" alt="Logo Bawaslu" width="80"></td>
+        </tr>
+    </table>
+    <h3 style="text-align: center; font-weight: bold;">DAFTAR INVENTARIS BARANG</h3>
+    <table class="tabel">
+        <!-- thead ada warna abu abu -->
         <thead>
-            <tr>
+            <tr style="background-color: lightgray;">
                 <th>No</th>
                 <th>Kode Barang</th>
                 <th>Nama Barang</th>
-                <th>Kategori</th>
-                <th>Lokasi</th>
-                <th>Merk</th>
-                <th>Nilai Perolehan</th>
-                <th>Penanggung Jawab</th>
-                <th>Tahun</th>
                 <th>Kondisi</th>
+                <th>Ruangan</th>
+                <th>Merk</th>
+                <th>Tahun</th>
+                <th>Penanggung Jawab</th>
             </tr>
         </thead>
         <tbody>
             <?php $no = 1; ?>
             <?php foreach ($barang as $row): ?>
                 <tr>
-                    <td style="text-align: center;"><?= $no++ ?></td>
-                    <td><?= esc($row['kode_barang']) ?></td>
-                    <td><?= esc($row['nama_barang']) ?></td>
-                    <td><?= esc($row['nama_kategori']) ?></td>
-                    <td><?= esc($row['nama_lokasi']) ?></td>
-                    <td><?= esc($row['merk']) ?></td>
-                    <td style="text-align: right;">Rp <?= number_format($row['nilai_perolehan'], 0, ',', '.') ?></td>
-                    <td><?= esc($row['penanggung_jawab']) ?></td>
-                    <td style="text-align: center;"><?= esc($row['tahun_perolehan']) ?></td>
-                    <td style="text-align: center;"><?= esc($row['kondisi']) ?></td>
+                    <td style="text-align: center;"><?php echo $no++; ?></td>
+                    <td><?php echo esc($row['kode_barang']); ?></td>
+                    <td><?php echo esc($row['nama_barang']); ?></td>
+                    <td style="text-align: center;"><?php echo esc($row['kondisi']); ?></td>
+                    <td><?php echo esc($row['nama_lokasi']); ?></td>
+                    <td><?php echo esc($row['merk']); ?></td>
+                    <td style="text-align: center;"><?php echo esc($row['tahun_perolehan']); ?></td>
+                    <td><?php echo esc($row['penanggung_jawab']); ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
-
-    <div class="footer">
-        <p>Dicetak pada: <?= date('d-m-Y H:i:s') ?></p>
-    </div>
+    <br><br>
+     <table style="text-align: center;">
+        <tbody>
+            <tr>
+                <td></td>
+                <td>
+                    <table>
+                        <tr>
+                            <td>Kepala Sekretariat</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <br><br><br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <font>-------------------</font><br>
+                                <font>Pembina Utama Muda (IV/c)</font><br>
+                                <font>NIP. </font>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 
 </html>

@@ -1,5 +1,5 @@
-<?= $this->extend('templates/main'); ?>
-<?= $this->section('content'); ?>
+<?php echo $this->extend('templates/main'); ?>
+<?php echo $this->section('content'); ?>
 
 <!-- Content wrapper -->
 <div class="content-wrapper">
@@ -11,10 +11,10 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h4 class="text-white mb-1">Selamat Datang, <?= session()->get('nama_lengkap') ?>! 👋</h4>
+                                <h4 class="text-white mb-1">Selamat Datang,                                                                            <?php echo session()->get('nama_lengkap') ?>! 👋</h4>
                                 <p class="mb-0">Sistem Administrasi Barang (SABAR)</p>
                             </div>
-                            <a href="<?= base_url('kelola-barang') ?>" class="btn btn-sm btn-light">Kelola Barang</a>
+                            <a href="<?php echo base_url('kelola-barang') ?>" class="btn btn-sm btn-primary">Kelola Barang</a>
                         </div>
                     </div>
                 </div>
@@ -35,8 +35,8 @@
                             </div>
                             <span class="fw-semibold">Total Barang</span>
                         </div>
-                        <h3 class="card-title mb-2"><?= $total_barang ?? 0 ?></h3>
-                        <a href="<?= base_url('kelola-barang') ?>" class="text-primary small">Lihat Detail</a>
+                        <h3 class="card-title mb-2"><?php echo $total_barang ?? 0 ?></h3>
+                        <a href="<?php echo base_url('kelola-barang') ?>" class="text-primary small">Lihat Detail</a>
                     </div>
                 </div>
             </div>
@@ -53,8 +53,8 @@
                             </div>
                             <span class="fw-semibold">Total Kategori</span>
                         </div>
-                        <h3 class="card-title mb-2"><?= $total_kategori ?? 0 ?></h3>
-                        <a href="<?= base_url('kelola-kategori') ?>" class="text-warning small">Lihat Detail</a>
+                        <h3 class="card-title mb-2"><?php echo $total_kategori ?? 0 ?></h3>
+                        <a href="<?php echo base_url('kelola-kategori') ?>" class="text-warning small">Lihat Detail</a>
                     </div>
                 </div>
             </div>
@@ -71,8 +71,8 @@
                             </div>
                             <span class="fw-semibold">Total Lokasi</span>
                         </div>
-                        <h3 class="card-title mb-2"><?= $total_lokasi ?? 0 ?></h3>
-                        <a href="<?= base_url('kelola-lokasi') ?>" class="text-success small">Lihat Detail</a>
+                        <h3 class="card-title mb-2"><?php echo $total_lokasi ?? 0 ?></h3>
+                        <a href="<?php echo base_url('kelola-lokasi') ?>" class="text-success small">Lihat Detail</a>
                     </div>
                 </div>
             </div>
@@ -85,7 +85,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title m-0">Barang Terbaru</h5>
-                        <a href="<?= base_url('kelola-barang') ?>" class="btn btn-sm btn-primary">Lihat Semua</a>
+                        <a href="<?php echo base_url('kelola-barang') ?>" class="btn btn-sm btn-primary">Lihat Semua</a>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -99,21 +99,21 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if (isset($barang_terbaru) && !empty($barang_terbaru)): ?>
+                                <?php if (isset($barang_terbaru) && ! empty($barang_terbaru)): ?>
                                     <?php foreach ($barang_terbaru as $barang): ?>
                                         <tr>
-                                            <td><i class="bx bx-box text-primary me-1"></i><?= $barang['kode_barang'] ?></td>
+                                            <td><i class="bx bx-box text-primary me-1"></i><?php echo $barang['kode_barang'] ?></td>
                                             <td>
                                                 <div class="d-flex flex-column">
-                                                    <span class="fw-semibold"><?= $barang['nama_barang'] ?></span>
-                                                    <small class="text-muted"><?= $barang['merk'] ?></small>
+                                                    <span class="fw-semibold"><?php echo $barang['nama_barang'] ?></span>
+                                                    <small class="text-muted"><?php echo $barang['merk'] ?></small>
                                                 </div>
                                             </td>
-                                            <td><?= $barang['nama_kategori'] ?></td>
-                                            <td><?= $barang['nama_lokasi'] ?></td>
+                                            <td><?php echo $barang['nama_kategori'] ?></td>
+                                            <td><?php echo $barang['nama_lokasi'] ?></td>
                                             <td>
-                                                <span class="badge bg-label-<?= $barang['kondisi'] == 'Baik' ? 'success' : 'warning' ?>">
-                                                    <?= $barang['kondisi'] ?>
+                                                <span class="badge bg-label-<?php echo $barang['kondisi'] == 'Baik' ? 'success' : 'warning' ?>">
+                                                    <?php echo $barang['kondisi'] ?>
                                                 </span>
                                             </td>
                                         </tr>
@@ -136,7 +136,7 @@
                         <h5 class="card-title m-0">Statistik per Lokasi</h5>
                     </div>
                     <div class="card-body">
-                        <?php if (isset($barang_per_lokasi) && !empty($barang_per_lokasi)): ?>
+                        <?php if (isset($barang_per_lokasi) && ! empty($barang_per_lokasi)): ?>
                             <?php foreach ($barang_per_lokasi as $lokasi): ?>
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="avatar flex-shrink-0 me-3">
@@ -147,8 +147,8 @@
                                     <div class="flex-grow-1">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="mb-0"><?= $lokasi['nama_lokasi'] ?></h6>
-                                                <small class="text-muted"><?= $lokasi['total'] ?> barang</small>
+                                                <h6 class="mb-0"><?php echo $lokasi['nama_lokasi'] ?></h6>
+                                                <small class="text-muted"><?php echo $lokasi['total'] ?> barang</small>
                                             </div>
                                         </div>
                                     </div>
@@ -165,4 +165,4 @@
     </div>
 </div>
 
-<?= $this->endSection(); ?>
+<?php echo $this->endSection(); ?>

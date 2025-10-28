@@ -33,4 +33,16 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->post('delete-barang/(:num)', 'BarangController::delete/$1');
     $routes->get('export-pdf', 'BarangController::export_pdf');
     $routes->get('export-excel', 'BarangController::export_excel');
+
+    // routes kategori management
+    $routes->get('kelola-kategori', 'KategoriController::index');
+    $routes->post('proses-kategori', 'KategoriController::proses_kategori');
+    $routes->post('update-kategori/(:num)', 'KategoriController::update_kategori/$1');
+    $routes->get('delete-kategori/(:num)', 'KategoriController::delete_kategori/$1');
+
+    // routes lokasi management
+    $routes->get('kelola-lokasi', 'LokasiController::index');
+    $routes->post('proses-lokasi', 'LokasiController::proses_lokasi');
+    $routes->post('update-lokasi/(:num)', 'LokasiController::update_lokasi/$1');
+    $routes->get('delete-lokasi/(:num)', 'LokasiController::delete_lokasi/$1');
 });
