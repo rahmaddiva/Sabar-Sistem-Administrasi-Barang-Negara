@@ -45,4 +45,13 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->post('proses-lokasi', 'LokasiController::proses_lokasi');
     $routes->post('update-lokasi/(:num)', 'LokasiController::update_lokasi/$1');
     $routes->get('delete-lokasi/(:num)', 'LokasiController::delete_lokasi/$1');
+
+    // routes master data
+    $routes->get('aset-aktif', 'MasterDataController::aset_aktif');
+    $routes->get('aset-inaktif', 'MasterDataController::aset_inaktif');
+    $routes->get('export-pdf-aktif', 'MasterDataController::export_pdf_aktif');
+    $routes->get('export-excel-aktif', 'MasterDataController::export_excel_aktif');
+    $routes->get('export-pdf-inaktif', 'MasterDataController::export_pdf_inaktif');
+    $routes->get('export-excel-inaktif', 'MasterDataController::export_excel_inaktif');
+
 });

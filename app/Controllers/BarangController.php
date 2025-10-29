@@ -326,6 +326,34 @@ class BarangController extends BaseController
         return view('barang/detail', $data);
     }
 
+    public function scan_detail($kode_barang)
+    {
+        $kategoriModel = new \App\Models\KategoriModel();
+        $lokasiModel   = new \App\Models\LokasiModel();
+
+        // Cari barang berdasarkan kode_barang yang unik
+        $barang = $this->barangModel->where('kode_barang', $kode_barang)->first();
+
+        // Jika barang tidak ditemukan, tampilkan halaman error 404
+        if (! $barang) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        // Ambil data relasi
+        $kategori = $kategoriModel->find($barang['id_kategori']);
+        $lokasi   = $lokasiModel->find($barang['id_lokasi']);
+
+        $data = [
+            'title'    => 'Detail Barang: ' . esc($barang['nama_barang']),
+            'barang'   => $barang,
+            'kategori' => $kategori,
+            'lokasi'   => $lokasi,
+        ];
+
+        // Tampilkan view publik, bukan view admin
+        return view('barang/scan_detail', $data);
+    }
+
     public function edit($id)
     {
         $kategoriModel = new \App\Models\KategoriModel();
@@ -476,22 +504,8 @@ class BarangController extends BaseController
                 unlink('uploads/barang/qrcodes/' . $barang['qr_code']);
             }
 
-            // generate QR code with image URL
-            $imageUrl = '';
-            if ($data['gambar']) {
-                $imageUrl = base_url('uploads/barang/images/' . $data['gambar']);
-            }
-
-            $qrData = json_encode([
-                'kode_barang'      => $data['kode_barang'],
-                'nama_barang'      => $data['nama_barang'],
-                'merk'             => $data['merk'],
-                'tahun_perolehan'  => $data['tahun_perolehan'],
-                'kondisi'          => $data['kondisi'],
-                'penanggung_jawab' => $data['penanggung_jawab'],
-                'gambar_url'       => $imageUrl,
-                'detail_url'       => base_url('detail-barang/' . $data['kode_barang']),
-            ]);
+            // Data untuk QR code adalah URL langsung ke halaman detail publik
+            $qrData = base_url('scan/' . $data['kode_barang']);
 
             // QR code options
             $options = new \chillerlan\QRCode\QROptions([
@@ -509,66 +523,9 @@ class BarangController extends BaseController
             $qrCode     = new \chillerlan\QRCode\QRCode($options);
             $qrFileName = 'qr_' . $data['kode_barang'] . '.png';
 
-            // Generate QR code
-            $qrCode     = new \chillerlan\QRCode\QRCode($options);
+            // Render dan simpan QR code (logo akan ditambahkan secara otomatis)
             $qrFilePath = 'uploads/barang/qrcodes/' . $qrFileName;
             $qrCode->render($qrData, $qrFilePath);
-
-// Tambahkan logo di tengah QR code
-            $logoPath = FCPATH . 'assets/img/favicon/Logo-Bawaslu-2.png'; // pastikan path benar
-
-            if (file_exists($logoPath)) {
-                $qrImage   = imagecreatefrompng($qrFilePath);
-                $logoImage = imagecreatefrompng($logoPath);
-
-                $qrWidth    = imagesx($qrImage);
-                $qrHeight   = imagesy($qrImage);
-                $logoWidth  = imagesx($logoImage);
-                $logoHeight = imagesy($logoImage);
-
-                // Skala logo sekitar 18% dari QR code
-                $logoTargetWidth  = $qrWidth * 0.18;
-                $scale            = $logoTargetWidth / $logoWidth;
-                $logoTargetHeight = $logoHeight * $scale;
-
-                // Posisi tengah logo
-                $logoX = ($qrWidth - $logoTargetWidth) / 2;
-                $logoY = ($qrHeight - $logoTargetHeight) / 2;
-
-                                                       // Tambahkan background putih di bawah logo untuk kontras
-                $whiteBgSize = $logoTargetWidth * 1.2; // sedikit lebih besar dari logo
-                $whiteBgX    = ($qrWidth - $whiteBgSize) / 2;
-                $whiteBgY    = ($qrHeight - $whiteBgSize) / 2;
-
-                $white = imagecolorallocate($qrImage, 255, 255, 255);
-                imagefilledrectangle(
-                    $qrImage,
-                    $whiteBgX,
-                    $whiteBgY,
-                    $whiteBgX + $whiteBgSize,
-                    $whiteBgY + $whiteBgSize,
-                    $white
-                );
-
-                // Tempelkan logo di atas background putih
-                imagecopyresampled(
-                    $qrImage,
-                    $logoImage,
-                    $logoX,
-                    $logoY,
-                    0,
-                    0,
-                    $logoTargetWidth,
-                    $logoTargetHeight,
-                    $logoWidth,
-                    $logoHeight
-                );
-
-                // Simpan hasil akhir
-                imagepng($qrImage, $qrFilePath);
-                imagedestroy($qrImage);
-                imagedestroy($logoImage);
-            }
 
             $data['qr_code'] = $qrFileName;
         }
