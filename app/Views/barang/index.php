@@ -1,17 +1,17 @@
-<?php $this->extend('templates/main') ?>
-<?php $this->section('content') ?>
+<?php $this->extend('templates/main')?>
+<?php $this->section('content')?>
 
 <div class="container">
     <div class="row">
         <div class="col-md-12">
             <!-- rowcrumb -->
             <div class="page-breadcrumb d-flex align-items-center mt-3">
-                <h4 class="page-title me-3"><?= esc($title) ?></h4>
+                <h4 class="page-title me-3"><?php echo esc($title)?></h4>
                 <div class="ms-auto">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="/dashboard" class="breadcrumb-link">Dashboard</a></li>
-                            <li class="breadcrumb-item active" aria-current="page"><?= esc($title) ?></li>
+                            <li class="breadcrumb-item active" aria-current="page"><?php echo esc($title)?></li>
                         </ol>
                     </nav>
                 </div>
@@ -38,6 +38,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Kode Barang</th>
+                                    <th>NUP</th>
                                     <th>Nama Barang</th>
                                     <th>Merk</th>
                                     <th>Tahun Perolehan</th>
@@ -106,5 +107,5 @@
     });
 </script>
 
-<?= view('templates/partials') ?>
-<?php $this->endSection() ?>
+<?php echo view('templates/partials')?>
+<?php $this->endSection()?>

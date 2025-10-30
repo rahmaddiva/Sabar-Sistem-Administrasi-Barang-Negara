@@ -1,0 +1,229 @@
+/**
+ * QR Scanner Custom Styles
+ */
+
+/* QR Reader Container */
+#qr-reader {
+    border: 2px solid #dee2e6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: #000;
+    position: relative;
+    min-height: 300px;
+}
+
+/* QR Reader Video */
+#qr-reader video {
+    width: 100% !important;
+    height: auto !important;
+    border-radius: 0.5rem;
+}
+
+/* QR Reader Canvas */
+#qr-reader canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+
+/* QR Reader Dashboard (controls) */
+#qr-reader__dashboard {
+    display: none !important;
+}
+
+/* QR Reader Status */
+#qr-reader__status_span {
+    display: none !important;
+}
+
+/* Scan Region */
+#qr-reader__scan_region {
+    border: none !important;
+}
+
+/* Camera Selection */
+#qr-reader__camera_selection {
+    margin: 10px auto;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    background-color: #fff;
+    font-size: 0.875rem;
+}
+
+/* Loading State */
+#qr-reader::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #0d6efd;
+    border-radius: 50%;
+    animation: qr-spinner 1s linear infinite;
+    z-index: 1;
+}
+
+#qr-reader.scanning::before {
+    display: none;
+}
+
+@keyframes qr-spinner {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* QR Scanner Button */
+.btn-scan-qr {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-scan-qr::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-scan-qr:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* QR Results */
+#qr-reader-results {
+    min-height: 60px;
+}
+
+#qr-reader-results .alert {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scanner Modal Customization */
+#qrScannerModal .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+}
+
+#qrScannerModal .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+#qrScannerModal .modal-body {
+    padding: 1.5rem;
+}
+
+/* Scan Animation Overlay */
+.scan-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(0, 255, 0, 0.8), 
+        transparent
+    );
+    animation: scan 2s ease-in-out infinite;
+}
+
+@keyframes scan {
+    0%, 100% {
+        top: 0;
+        opacity: 0;
+    }
+    50% {
+        top: 100%;
+        opacity: 1;
+    }
+}
+
+/* QR Code Display Card */
+.qr-code-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.qr-code-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #qr-reader {
+        min-height: 250px;
+    }
+    
+    #qrScannerModal .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .btn-scan-qr {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Camera Permission Message */
+.camera-permission-message {
+    padding: 2rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+.camera-permission-message i {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+/* Success/Error Icons Animation */
+.alert i {
+    animation: iconPulse 0.5s ease-out;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+@keyframes iconPulse {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

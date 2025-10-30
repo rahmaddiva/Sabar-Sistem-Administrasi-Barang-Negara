@@ -6,7 +6,7 @@
 - logo bawaslu ( Done )
 - tambahkan menu hapus, lihat dan download pada gambar dan dokumen bast (done)
 - logo bawaslu di tengah pada qrcode (done)
-- qrcode di scan masih berupa text (belum)~
+- qrcode di scan masih berupa text (done)~
 
 sistem
 - dokumen bast tidak muncul di halaman detail (done)

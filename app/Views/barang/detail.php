@@ -18,6 +18,15 @@
                 </div>
             </div>
 
+            <!-- QR Scanner Button -->
+            <div class="card mt-3 border-primary">
+                <div class="card-body text-center py-3">
+                    <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
+                        <i class="bx bx-qr-scan"></i> Scan QR Code Barang
+                    </button>
+                </div>
+            </div>
+
             <!-- Informasi Barang Card -->
             <div class="card mt-3">
                 <div class="card-header text-white">
@@ -31,6 +40,11 @@
                                     <td width="35%"><strong>Kode Barang</strong></td>
                                     <td width="5%">:</td>
                                     <td><?= esc($barang['kode_barang']) ?></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>NUP</strong></td>
+                                    <td>:</td>
+                                    <td><?= esc($barang['nup']) ?></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Nama Barang</strong></td>
@@ -64,7 +78,7 @@
                                 <tr>
                                     <td><strong>Nilai Perolehan</strong></td>
                                     <td>:</td>
-                                    <td> <?= number_format($barang['nilai_perolehan'], 0, ',', '.') ?></td>
+                                    <td>Rp <?= number_format($barang['nilai_perolehan'], 0, ',', '.') ?></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Penanggung Jawab</strong></td>
@@ -155,11 +169,9 @@
                                         $ext = pathinfo($barang['dokumen_bast'], PATHINFO_EXTENSION);
                                         $isPdf = strtolower($ext) === 'pdf';
                                         ?>
-                                        <?php if ($isPdf) : ?>
-                                           
-                                        <?php else : ?>
-                                            
-                                        <?php endif; ?>
+                                        <div class="mb-3">
+                                            <i class="bx <?= $isPdf ? 'bx-file-pdf' : 'bx-file' ?> display-4 text-danger"></i>
+                                        </div>
                                         <div>
                                             <?php if ($isPdf) : ?>
                                                 <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#pdfModal">
@@ -188,6 +200,30 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Scanner Modal -->
+<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="qrScannerModalLabel">
+                    <i class="bx bx-qr-scan"></i> Scan QR Code Barang
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <p class="text-muted">Arahkan QR Code ke kamera untuk memindai</p>
+                </div>
+                <div id="qr-reader" style="width: 100%;"></div>
+                <div id="qr-reader-results" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -229,4 +265,65 @@
     </div>
 <?php endif; ?>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<!-- Include html5-qrcode library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script>
+    let html5QrCode;
+    
+    // Initialize scanner when modal is shown
+    document.getElementById('qrScannerModal').addEventListener('shown.bs.modal', function () {
+        html5QrCode = new Html5Qrcode("qr-reader");
+        
+        const config = {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0
+        };
+        
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            onScanSuccess,
+            onScanError
+        ).catch(err => {
+            console.error("Error starting scanner:", err);
+            document.getElementById('qr-reader-results').innerHTML = 
+                '<div class="alert alert-danger">Tidak dapat mengakses kamera. Pastikan Anda memberikan izin kamera.</div>';
+        });
+    });
+    
+    // Stop scanner when modal is hidden
+    document.getElementById('qrScannerModal').addEventListener('hidden.bs.modal', function () {
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+            }).catch(err => {
+                console.error("Error stopping scanner:", err);
+            });
+        }
+    });
+    
+    function onScanSuccess(decodedText, decodedResult) {
+        // Stop scanning
+        html5QrCode.stop();
+        
+        // Show success message
+        document.getElementById('qr-reader-results').innerHTML = 
+            '<div class="alert alert-success">QR Code berhasil dipindai! Mengarahkan ke halaman detail...</div>';
+        
+        // Redirect to the scanned URL
+        setTimeout(() => {
+            window.location.href = decodedText;
+        }, 1000);
+    }
+    
+    function onScanError(errorMessage) {
+        // Silent error handling - only log to console
+        // console.warn(`QR Code scan error: ${errorMessage}`);
+    }
+</script>
 <?= $this->endSection() ?>

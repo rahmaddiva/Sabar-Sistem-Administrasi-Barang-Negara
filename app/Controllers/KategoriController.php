@@ -25,10 +25,10 @@ class KategoriController extends BaseController
         $validation->setRules([
             'nama_kategori' => [
                 'label'  => 'Nama Kategori',
-                'rules'  => 'required|is_unique[kategori.nama_kategori]',
+                'rules'  => 'required',
                 'errors' => [
                     'required'  => '{field} wajib diisi.',
-                    'is_unique' => '{field} sudah ada.',
+
                 ],
             ],
 

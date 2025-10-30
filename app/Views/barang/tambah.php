@@ -29,6 +29,8 @@
                         </div>
                     <?php endif; ?>
 
+                    <!-- csrf -->
+                    <?= csrf_field() ?>
                     <form action="<?php echo base_url('proses-barang') ?>" method="POST" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-md-6">
@@ -57,6 +59,10 @@
                                 <div class="form-group mb-3">
                                     <label for="kode_barang">Kode Barang</label>
                                     <input type="text" class="form-control" id="kode_barang" name="kode_barang" value="<?php echo old('kode_barang') ?>">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="nup">NUP</label>
+                                    <input type="text" class="form-control" id="nup" name="nup" value="<?php echo old('nup') ?>">
                                 </div>
                                     <div class="form-group mb-3">
                                         <label for="nilai_perolehan">Nilai Perolehan</label>

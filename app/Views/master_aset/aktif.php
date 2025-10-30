@@ -18,16 +18,29 @@
             </div>
             <div class="card mt-5">
                 <div class="card-body col-lg-12">
-                    <div class="d-flex justify-content-between mb-3">
-                        <div class="btn-group">
-                            <a href="/export-pdf-aktif" class="btn btn-outline-danger" target="_blank">
-                                <i class="bx bxs-file-pdf"></i> Export PDF
-                            </a>
-                            <a href="/export-excel-aktif" class="btn btn-outline-success">
-                                <i class="bx bx-file-excel"></i> Export Excel
-                            </a>
-                        </div>
-                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Tombol Export -->
+    <div class="btn-group">
+        <a href="/export-pdf-aktif" class="btn btn-outline-danger" target="_blank">
+            <i class="bx bxs-file-pdf"></i> Export PDF
+        </a>
+        <a href="/export-excel-aktif" class="btn btn-outline-success">
+            <i class="bx bx-file-excel"></i> Export Excel
+        </a>
+    </div>
+
+    <!-- Form Import -->
+    <form action="<?php echo base_url('barang/import_excel') ?>" method="post" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
+        <div class="form-group mb-0">
+            <input type="file" name="file_excel" accept=".xls,.xlsx" class="form-control form-control-sm" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">
+            <i class="bx bx-upload"></i> Import Excel
+        </button>
+    </form>
+</div>
+
+
                     <!-- table serverside -->
                     <div class="table-responsive mt-3">
                         <table id="table-aset" class="datatable-basic table border-top">
@@ -35,9 +48,11 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Kode Barang</th>
+                                    <th>NUP</th>
                                     <th>Nama Barang</th>
                                     <th>Merk</th>
                                     <th>Tahun Perolehan</th>
+                                    <th>Nilai Perolehan</th>
                                     <th>Penanggung Jawab</th>
                                     <th>Kondisi</th>
                                 </tr>

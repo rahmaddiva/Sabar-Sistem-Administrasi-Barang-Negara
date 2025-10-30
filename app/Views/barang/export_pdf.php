@@ -71,6 +71,7 @@
         <thead>
             <tr style="background-color: lightgray;">
                 <th>No</th>
+                <th>NUP</th>
                 <th>Kode Barang</th>
                 <th>Nama Barang</th>
                 <th>Kondisi</th>
@@ -85,6 +86,7 @@
             <?php foreach ($barang as $row): ?>
                 <tr>
                     <td style="text-align: center;"><?php echo $no++; ?></td>
+                    <td style="text-align: center;"><?php echo esc($row['nup']); ?></td>
                     <td><?php echo esc($row['kode_barang']); ?></td>
                     <td><?php echo esc($row['nama_barang']); ?></td>
                     <td style="text-align: center;"><?php echo esc($row['kondisi']); ?></td>

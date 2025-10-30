@@ -34,6 +34,7 @@ class BarangController extends BaseController
                 $builder->groupStart()
                     ->like('nama_barang', $search)
                     ->orLike('kode_barang', $search)
+                    ->orLike('nup', $search)
                     ->orLike('merk', $search)
                     ->orLike('penanggung_jawab', $search)
                     ->orLike('tahun_perolehan', $search)
@@ -68,6 +69,7 @@ class BarangController extends BaseController
                 $data[] = [
                     $no++,
                     esc($row['kode_barang']),
+                    esc($row['nup']),
                     esc($row['nama_barang']),
                     esc($row['merk']),
                     esc($row['tahun_perolehan']),
@@ -132,8 +134,14 @@ class BarangController extends BaseController
                 // jika tidak ingin unik, hapus saja is_unique
                 'rules'  => 'required',
                 'errors' => [
-                    'required'  => 'Kode Barang wajib diisi',
-                    'is_unique' => 'Kode Barang sudah digunakan',
+                    'required' => 'Kode Barang wajib diisi',
+
+                ],
+            ],
+            'nup'             => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'NUP wajib diisi',
                 ],
             ],
             'merk'            => [
@@ -195,8 +203,10 @@ class BarangController extends BaseController
 
         // siapkan data untuk disimpan
         $data = [
+            // 'id' akan di-generate otomatis oleh database
             'id_kategori'      => $this->request->getPost('id_kategori'),
             'id_lokasi'        => $this->request->getPost('id_lokasi'),
+            'nup'              => $this->request->getPost('nup'),
             'nama_barang'      => $this->request->getPost('nama_barang'),
             'kode_barang'      => $this->request->getPost('kode_barang'),
             'merk'             => $this->request->getPost('merk'),
@@ -209,26 +219,40 @@ class BarangController extends BaseController
             'keterangan'       => $this->request->getPost('keterangan'),
         ];
 
-        // generate QR code with image URL
-        $imageUrl = '';
-        if ($namaGambar) {
-            $imageUrl = base_url('uploads/barang/images/' . $namaGambar);
-        }
+        // simpan ke database terlebih dahulu untuk mendapatkan ID
+        $this->barangModel->insert($data);
+        $insertedId = $this->barangModel->insertID(); // Dapatkan ID yang baru saja di-insert
 
-        $qrData = json_encode([
-            'kode_barang'      => $data['kode_barang'],
-            'nama_barang'      => $data['nama_barang'],
-            'merk'             => $data['merk'],
-            'tahun_perolehan'  => $data['tahun_perolehan'],
-            'kondisi'          => $data['kondisi'],
-            'penanggung_jawab' => $data['penanggung_jawab'],
-            'gambar_url'       => $imageUrl,
-            'detail_url'       => base_url('detail-barang/' . $data['kode_barang']),
+        // generate QR code dengan ID yang benar
+        $qrData = base_url('scan/' . $insertedId);
+
+// QR code options dengan logo
+        $options = new \chillerlan\QRCode\QROptions([
+            'outputType'      => \chillerlan\QRCode\QRCode::OUTPUT_IMAGE_PNG,
+            'eccLevel'        => \chillerlan\QRCode\QRCode::ECC_H, // High error correction untuk menutupi area logo
+            'scale'           => 10,
+            'imageBase64'     => false,
+            'logoSpaceWidth'  => 13,
+            'logoSpaceHeight' => 13,
         ]);
 
-        $logoPath = FCPATH . 'assets/img/favicon/Logo-Bawaslu-2.png'; // pastikan path benar
+// Create QR code instance
+        $qrCode = new \chillerlan\QRCode\QRCode($options);
+        $qrFileName = 'qr_' . time() . '_' . $data['kode_barang'] . '_' . $insertedId . '.png';
+        $qrFilePath = FCPATH . 'uploads/barang/qrcodes/' . $qrFileName;
 
-        if (file_exists($logoPath)) {
+// Pastikan folder exists
+        if (! is_dir(FCPATH . 'uploads/barang/qrcodes')) {
+            mkdir(FCPATH . 'uploads/barang/qrcodes', 0755, true);
+        }
+
+// Render QR code
+        $qrCode->render($qrData, $qrFilePath);
+
+// Add logo to QR code
+        $logoPath = FCPATH . 'assets/img/favicon/Logo-Bawaslu-2.png';
+
+        if (file_exists($logoPath) && file_exists($qrFilePath)) {
             $qrImage   = imagecreatefrompng($qrFilePath);
             $logoImage = imagecreatefrompng($logoPath);
 
@@ -237,8 +261,8 @@ class BarangController extends BaseController
             $logoWidth  = imagesx($logoImage);
             $logoHeight = imagesy($logoImage);
 
-            // Skala logo sekitar 18% dari QR code
-            $logoTargetWidth  = $qrWidth * 0.18;
+            // Skala logo sekitar 20% dari QR code
+            $logoTargetWidth  = $qrWidth * 0.20;
             $scale            = $logoTargetWidth / $logoWidth;
             $logoTargetHeight = $logoHeight * $scale;
 
@@ -246,8 +270,8 @@ class BarangController extends BaseController
             $logoX = ($qrWidth - $logoTargetWidth) / 2;
             $logoY = ($qrHeight - $logoTargetHeight) / 2;
 
-                                                   // Tambahkan background putih di bawah logo untuk kontras
-            $whiteBgSize = $logoTargetWidth * 1.2; // sedikit lebih besar dari logo
+            // Tambahkan background putih di bawah logo untuk kontras
+            $whiteBgSize = $logoTargetWidth * 1.15;
             $whiteBgX    = ($qrWidth - $whiteBgSize) / 2;
             $whiteBgY    = ($qrHeight - $whiteBgSize) / 2;
 
@@ -285,7 +309,7 @@ class BarangController extends BaseController
 
         // simpan ke database
         try {
-            $this->barangModel->insert($data);
+            $this->barangModel->update($insertedId, ['qr_code' => $qrFileName]); // Update kolom qr_code dengan nama file QR
             return redirect()->to('kelola-barang')->with('success', 'Data barang berhasil ditambahkan');
         } catch (\Exception $e) {
             // hapus file yang sudah diupload jika gagal
@@ -326,13 +350,13 @@ class BarangController extends BaseController
         return view('barang/detail', $data);
     }
 
-    public function scan_detail($kode_barang)
+    public function scan_detail($id)
     {
         $kategoriModel = new \App\Models\KategoriModel();
         $lokasiModel   = new \App\Models\LokasiModel();
 
-        // Cari barang berdasarkan kode_barang yang unik
-        $barang = $this->barangModel->where('kode_barang', $kode_barang)->first();
+        // Cari barang berdasarkan id dari table barang
+        $barang = $this->barangModel->where('id', $id)->first();
 
         // Jika barang tidak ditemukan, tampilkan halaman error 404
         if (! $barang) {
@@ -402,7 +426,7 @@ class BarangController extends BaseController
                 ],
             ],
             'kode_barang'     => [
-                'rules'  => 'required|is_unique[barang.kode_barang,id,' . $id . ']',
+                'rules'  => 'required',
                 'errors' => [
                     'required'  => 'Kode Barang wajib diisi',
                     'is_unique' => 'Kode Barang sudah digunakan',
@@ -474,7 +498,9 @@ class BarangController extends BaseController
 
         // siapkan data untuk disimpan
         $data = [
+            'id'               => $id,
             'id_kategori'      => $this->request->getPost('id_kategori'),
+            'nup'              => $this->request->getPost('nup'),
             'id_lokasi'        => $this->request->getPost('id_lokasi'),
             'nama_barang'      => $this->request->getPost('nama_barang'),
             'kode_barang'      => $this->request->getPost('kode_barang'),
@@ -493,6 +519,7 @@ class BarangController extends BaseController
             $barang['kode_barang'] !== $data['kode_barang'] ||
             $barang['nama_barang'] !== $data['nama_barang'] ||
             $barang['merk'] !== $data['merk'] ||
+            $barang['nup'] !== $data['nup'] ||
             $barang['tahun_perolehan'] !== $data['tahun_perolehan'] ||
             $barang['kondisi'] !== $data['kondisi'] ||
             $barang['penanggung_jawab'] !== $data['penanggung_jawab'] ||
@@ -504,28 +531,64 @@ class BarangController extends BaseController
                 unlink('uploads/barang/qrcodes/' . $barang['qr_code']);
             }
 
-            // Data untuk QR code adalah URL langsung ke halaman detail publik
-            $qrData = base_url('scan/' . $data['kode_barang']);
+            // generate QR code with logo
+            $qrData = base_url('scan/' . $data['id']);
 
-            // QR code options
+            // QR code options dengan logo
             $options = new \chillerlan\QRCode\QROptions([
-                'outputType'       => \chillerlan\QRCode\QRCode::OUTPUT_IMAGE_PNG,
-                'eccLevel'         => \chillerlan\QRCode\QRCode::ECC_H, // Tingkatkan ECC level untuk menutupi area logo
-                'scale'            => 5,
-                'imageBase64'      => false,
-                'logoSpaceWidth'   => 13,                                               // Lebar area kosong untuk logo
-                'logoSpaceHeight'  => 13,                                               // Tinggi area kosong untuk logo
-                'logo'             => FCPATH . 'assets/img/favicon/Logo-Bawaslu-2.png', // Path absolut ke file logo
-                'imageTransparent' => false,                                            // Pastikan background logo tidak transparan jika logo tidak punya alpha channel
+                'outputType'      => \chillerlan\QRCode\QRCode::OUTPUT_IMAGE_PNG,
+                'eccLevel'        => \chillerlan\QRCode\QRCode::ECC_H, // High error correction untuk menutupi area logo
+                'scale'           => 10,
+                'imageBase64'     => false,
+                'logoSpaceWidth'  => 13,
+                'logoSpaceHeight' => 13,
             ]);
 
-            // Create QR code instance with options
+            // Create QR code instance
             $qrCode     = new \chillerlan\QRCode\QRCode($options);
-            $qrFileName = 'qr_' . $data['kode_barang'] . '.png';
-
-            // Render dan simpan QR code (logo akan ditambahkan secara otomatis)
+            $qrFileName = 'qr_' . time() . '_' . $data['kode_barang'] . '_' . $data['id'] . '.png';
             $qrFilePath = 'uploads/barang/qrcodes/' . $qrFileName;
+
+            // Render QR code
             $qrCode->render($qrData, $qrFilePath);
+
+            // Add logo to QR code
+            $logoPath = FCPATH . 'assets/img/favicon/Logo-Bawaslu-2.png';
+
+            if (file_exists($logoPath) && file_exists($qrFilePath)) {
+                $qrImage   = imagecreatefrompng($qrFilePath);
+                $logoImage = imagecreatefrompng($logoPath);
+
+                $qrWidth    = imagesx($qrImage);
+                $qrHeight   = imagesy($qrImage);
+                $logoWidth  = imagesx($logoImage);
+                $logoHeight = imagesy($logoImage);
+
+                // Skala logo sekitar 20% dari QR code
+                $logoTargetWidth  = $qrWidth * 0.20;
+                $scale            = $logoTargetWidth / $logoWidth;
+                $logoTargetHeight = $logoHeight * $scale;
+
+                // Posisi tengah logo
+                $logoX = ($qrWidth - $logoTargetWidth) / 2;
+                $logoY = ($qrHeight - $logoTargetHeight) / 2;
+
+                // Tambahkan background putih di bawah logo untuk kontras
+                $whiteBgSize = $logoTargetWidth * 1.15;
+                $whiteBgX    = ($qrWidth - $whiteBgSize) / 2;
+                $whiteBgY    = ($qrHeight - $whiteBgSize) / 2;
+
+                $white = imagecolorallocate($qrImage, 255, 255, 255);
+                imagefilledrectangle($qrImage, $whiteBgX, $whiteBgY, $whiteBgX + $whiteBgSize, $whiteBgY + $whiteBgSize, $white);
+
+                // Tempelkan logo di atas background putih
+                imagecopyresampled($qrImage, $logoImage, $logoX, $logoY, 0, 0, $logoTargetWidth, $logoTargetHeight, $logoWidth, $logoHeight);
+
+                // Simpan hasil akhir
+                imagepng($qrImage, $qrFilePath);
+                imagedestroy($qrImage);
+                imagedestroy($logoImage);
+            }
 
             $data['qr_code'] = $qrFileName;
         }
@@ -611,19 +674,20 @@ class BarangController extends BaseController
 
         // Add header row
         $sheet->setCellValue('A1', 'DAFTAR INVENTARIS BARANG');
-        $sheet->mergeCells('A1:H1');
+        $sheet->mergeCells('A1:I1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Add date
         $sheet->setCellValue('A2', 'Tanggal: ' . date('d-m-Y'));
-        $sheet->mergeCells('A2:H2');
+        $sheet->mergeCells('A2:I2');
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Add headers
         $headers = [
             'No',
             'Kode Barang',
+            'NUP',
             'Nama Barang',
             'Kondisi',
             'Ruangan',
@@ -658,7 +722,7 @@ class BarangController extends BaseController
             $column = chr(65 + $index); // Convert number to letter (A, B, C, etc.)
             $sheet->setCellValue($column . '4', $header);
         }
-        $sheet->getStyle('A4:H4')->applyFromArray($headerStyle);
+        $sheet->getStyle('A4:I4')->applyFromArray($headerStyle);
 
         // Add data
         $row = 5;
@@ -666,12 +730,13 @@ class BarangController extends BaseController
         foreach ($barang as $item) {
             $sheet->setCellValue('A' . $row, $no++);
             $sheet->setCellValue('B' . $row, $item['kode_barang']);
-            $sheet->setCellValue('C' . $row, $item['nama_barang']);
-            $sheet->setCellValue('D' . $row, $item['kondisi']);
-            $sheet->setCellValue('E' . $row, $item['nama_lokasi']);
-            $sheet->setCellValue('F' . $row, $item['merk']);
-            $sheet->setCellValue('G' . $row, $item['tahun_perolehan']);
-            $sheet->setCellValue('H' . $row, $item['penanggung_jawab']);
+            $sheet->setCellValue('C' . $row, $item['nup']);
+            $sheet->setCellValue('D' . $row, $item['nama_barang']);
+            $sheet->setCellValue('E' . $row, $item['kondisi']);
+            $sheet->setCellValue('F' . $row, $item['nama_lokasi']);
+            $sheet->setCellValue('G' . $row, $item['merk']);
+            $sheet->setCellValue('H' . $row, $item['tahun_perolehan']);
+            $sheet->setCellValue('I' . $row, $item['penanggung_jawab']);
 
             $row++;
         }
@@ -684,10 +749,10 @@ class BarangController extends BaseController
                 ],
             ],
         ];
-        $sheet->getStyle('A4:H' . ($row - 1))->applyFromArray($dataStyle);
+        $sheet->getStyle('A4:I' . ($row - 1))->applyFromArray($dataStyle);
 
         // Auto size columns
-        foreach (range('A', 'H') as $column) {
+        foreach (range('A', 'I') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
@@ -726,4 +791,5 @@ class BarangController extends BaseController
         $this->barangModel->delete($id);
         return redirect()->to('kelola-barang')->with('success', 'Data barang berhasil dihapus');
     }
+
 }

@@ -3,6 +3,8 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\BarangModel;
+use App\Models\KategoriModel;
+use App\Models\LokasiModel;
 use TCPDF;
 
 class MasterDataController extends BaseController
@@ -10,9 +12,50 @@ class MasterDataController extends BaseController
 
     protected $barangModel;
 
+    // Tambahkan properti untuk KategoriModel dan LokasiModel
+    protected $kategoriModel;
+    protected $lokasiModel;
+
     public function __construct()
     {
         $this->barangModel = new BarangModel();
+        $this->kategoriModel = new KategoriModel(); // Inisialisasi KategoriModel
+        $this->lokasiModel = new LokasiModel();     // Inisialisasi LokasiModel
+    }
+
+    private function getLokasiIdByName($nama)
+    {
+        if (empty($nama)) {
+            return null;
+        }
+    
+        $lokasi = $this->lokasiModel->where('nama_lokasi', $nama)->first();
+    
+        // Jika tidak ditemukan, bisa otomatis buat entri baru
+        if (! $lokasi) {
+            $newId = $this->lokasiModel->insert(['nama_lokasi' => $nama]);
+            return $newId;
+        }
+    
+        return $lokasi['id'];
+    }
+
+    // Fungsi baru untuk mendapatkan ID kategori berdasarkan nama
+    private function getKategoriIdByName($nama)
+    {
+        if (empty($nama)) {
+            return null;
+        }
+
+        $kategori = $this->kategoriModel->where('nama_kategori', $nama)->first();
+
+        // Jika tidak ditemukan, bisa otomatis buat entri baru
+        if (! $kategori) {
+            $newId = $this->kategoriModel->insert(['nama_kategori' => $nama]);
+            return $newId;
+        }
+
+        return $kategori['id'];
     }
 
     public function aset_aktif()
@@ -35,7 +78,10 @@ class MasterDataController extends BaseController
             if ($search) {
                 $builder->groupStart()
                     ->like('nama_barang', $search)
+                    ->orLike('nup', $search)
                     ->orLike('kode_barang', $search)
+                    ->orLike('nilai_perolehan', $search)
+                    ->orLike('kondisi', $search)
                     ->orLike('merk', $search)
                     ->orLike('penanggung_jawab', $search)
                     ->orLike('tahun_perolehan', $search)
@@ -56,9 +102,11 @@ class MasterDataController extends BaseController
                 $data[] = [
                     $no++,
                     esc($row['kode_barang']),
+                    esc($row['nup']),
                     esc($row['nama_barang']),
                     esc($row['merk']),
                     esc($row['tahun_perolehan']),
+                    esc($row['nilai_perolehan']),
                     esc($row['penanggung_jawab']),
                     esc($row['kondisi']),
                 ];
@@ -241,25 +289,28 @@ class MasterDataController extends BaseController
             ->setDescription('Daftar Barang dari Sistem Administrasi Barang');
 
         // Add header row
-        $sheet->setCellValue('A1', 'DAFTAR INVENTARIS BARANG');
-        $sheet->mergeCells('A1:H1');
+        $sheet->setCellValue('A1', 'DAFTAR INVENTARIS BARANG AKTIF');
+        $sheet->mergeCells('A1:K1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Add date
         $sheet->setCellValue('A2', 'Tanggal: ' . date('d-m-Y'));
-        $sheet->mergeCells('A2:H2');
+        $sheet->mergeCells('A2:K2');
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Add headers
         $headers = [
             'No',
+            'Kategori',
             'Kode Barang',
+            'NUP',
             'Nama Barang',
             'Kondisi',
             'Ruangan',
             'Merk',
             'Tahun',
+            'Nilai Perolehan',
             'Penanggung Jawab',
         ];
 
@@ -289,20 +340,24 @@ class MasterDataController extends BaseController
             $column = chr(65 + $index); // Convert number to letter (A, B, C, etc.)
             $sheet->setCellValue($column . '4', $header);
         }
-        $sheet->getStyle('A4:H4')->applyFromArray($headerStyle);
+        $sheet->getStyle('A4:K4')->applyFromArray($headerStyle);
 
         // Add data
         $row = 5;
         $no  = 1;
         foreach ($barang as $item) {
             $sheet->setCellValue('A' . $row, $no++);
-            $sheet->setCellValue('B' . $row, $item['kode_barang']);
-            $sheet->setCellValue('C' . $row, $item['nama_barang']);
-            $sheet->setCellValue('D' . $row, $item['kondisi']);
-            $sheet->setCellValue('E' . $row, $item['nama_lokasi']);
-            $sheet->setCellValue('F' . $row, $item['merk']);
-            $sheet->setCellValue('G' . $row, $item['tahun_perolehan']);
-            $sheet->setCellValue('H' . $row, $item['penanggung_jawab']);
+            $sheet->setCellValue('B' . $row, $item['nama_kategori']);
+            $sheet->setCellValue('C' . $row, $item['kode_barang']);
+            $sheet->setCellValue('D' . $row, $item['nup']);
+            $sheet->setCellValue('E' . $row, $item['nama_barang']);
+            $sheet->setCellValue('F' . $row, $item['kondisi']);
+            $sheet->setCellValue('G' . $row, $item['nama_lokasi']);
+            $sheet->setCellValue('H' . $row, $item['merk']);
+            $sheet->setCellValue('I' . $row, $item['tahun_perolehan']);
+            $sheet->setCellValue('J' . $row, number_format($item['nilai_perolehan'], 0, ',', '.'));
+            $sheet->getStyle('J' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+            $sheet->setCellValue('K' . $row, $item['penanggung_jawab']);
 
             $row++;
         }
@@ -315,10 +370,10 @@ class MasterDataController extends BaseController
                 ],
             ],
         ];
-        $sheet->getStyle('A4:H' . ($row - 1))->applyFromArray($dataStyle);
+        $sheet->getStyle('A4:K' . ($row - 1))->applyFromArray($dataStyle);
 
         // Auto size columns
-        foreach (range('A', 'H') as $column) {
+        foreach (range('A', 'K') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
@@ -327,7 +382,7 @@ class MasterDataController extends BaseController
 
         // Set headers for download
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="data_barang_' . date('Y-m-d') . '.xlsx"');
+        header('Content-Disposition: attachment;filename="data_barang_aktif_' . date('Y-m-d') . '.xlsx"');
         header('Cache-Control: max-age=0');
 
         // Save to PHP output
@@ -357,25 +412,28 @@ class MasterDataController extends BaseController
             ->setDescription('Daftar Barang dari Sistem Administrasi Barang');
 
         // Add header row
-        $sheet->setCellValue('A1', 'DAFTAR INVENTARIS BARANG');
-        $sheet->mergeCells('A1:H1');
+        $sheet->setCellValue('A1', 'DAFTAR INVENTARIS BARANG INAKTIF');
+        $sheet->mergeCells('A1:K1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Add date
         $sheet->setCellValue('A2', 'Tanggal: ' . date('d-m-Y'));
-        $sheet->mergeCells('A2:H2');
+        $sheet->mergeCells('A2:K2');
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Add headers
         $headers = [
             'No',
+            'Kategori',
             'Kode Barang',
+            'NUP',
             'Nama Barang',
             'Kondisi',
             'Ruangan',
             'Merk',
             'Tahun',
+            'Nilai Perolehan',
             'Penanggung Jawab',
         ];
 
@@ -405,36 +463,40 @@ class MasterDataController extends BaseController
             $column = chr(65 + $index); // Convert number to letter (A, B, C, etc.)
             $sheet->setCellValue($column . '4', $header);
         }
-        $sheet->getStyle('A4:H4')->applyFromArray($headerStyle);
+        $sheet->getStyle('A4:K4')->applyFromArray($headerStyle);
 
         // Add data
         $row = 5;
         $no  = 1;
         foreach ($barang as $item) {
             $sheet->setCellValue('A' . $row, $no++);
-            $sheet->setCellValue('B' . $row, $item['kode_barang']);
-            $sheet->setCellValue('C' . $row, $item['nama_barang']);
-            $sheet->setCellValue('D' . $row, $item['kondisi']);
-            $sheet->setCellValue('E' . $row, $item['nama_lokasi']);
-            $sheet->setCellValue('F' . $row, $item['merk']);
-            $sheet->setCellValue('G' . $row, $item['tahun_perolehan']);
-            $sheet->setCellValue('H' . $row, $item['penanggung_jawab']);
+            $sheet->setCellValue('B' . $row, $item['nama_kategori']);
+            $sheet->setCellValue('C' . $row, $item['kode_barang']);
+            $sheet->setCellValue('D' . $row, $item['nup']);
+            $sheet->setCellValue('E' . $row, $item['nama_barang']);
+            $sheet->setCellValue('F' . $row, $item['kondisi']);
+            $sheet->setCellValue('G' . $row, $item['nama_lokasi']);
+            $sheet->setCellValue('H' . $row, $item['merk']);
+            $sheet->setCellValue('I' . $row, $item['tahun_perolehan']);
+            $sheet->setCellValue('J' . $row, number_format($item['nilai_perolehan'], 0, ',', '.'));
+            $sheet->getStyle('J' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+            $sheet->setCellValue('K' . $row, $item['penanggung_jawab']);
 
             $row++;
         }
 
         // Style for data
         $dataStyle = [
-            'borders' => [
+            'borders' => [ // Apply borders to all cells in the data range
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                 ],
             ],
         ];
-        $sheet->getStyle('A4:H' . ($row - 1))->applyFromArray($dataStyle);
+        $sheet->getStyle('A4:K' . ($row - 1))->applyFromArray($dataStyle);
 
         // Auto size columns
-        foreach (range('A', 'H') as $column) {
+        foreach (range('A', 'K') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
@@ -443,12 +505,87 @@ class MasterDataController extends BaseController
 
         // Set headers for download
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="data_barang_' . date('Y-m-d') . '.xlsx"');
+        header('Content-Disposition: attachment;filename="data_barang_inaktif_' . date('Y-m-d') . '.xlsx"');
         header('Cache-Control: max-age=0');
 
         // Save to PHP output
         $writer->save('php://output');
         exit;
+    }
+
+    public function import_excel()
+    {
+        // Ambil file dari form upload
+        $file = $this->request->getFile('file_excel');
+
+        // Validasi file
+        if (! $file->isValid()) {
+            return redirect()->back()->with('error', 'File tidak valid atau tidak ditemukan.');
+        }
+
+        // Pastikan folder upload tersedia
+        $uploadPath = WRITEPATH . 'uploads/';
+        if (! is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        // Pindahkan file ke folder sementara
+        $fileName = $file->getRandomName();
+        $file->move($uploadPath, $fileName);
+        $filePath = $uploadPath . $fileName;
+
+        // Load PhpSpreadsheet reader
+        $reader      = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+        $spreadsheet = $reader->load($filePath);
+        $sheetData   = $spreadsheet->getActiveSheet()->toArray();
+
+        // Model Barang
+        $barangModel  = new \App\Models\BarangModel();
+        $dataToInsert = [];
+
+        // Lewati baris pertama (header)
+        $isFirstRow = true;
+
+        foreach ($sheetData as $row) {
+            if ($isFirstRow) {
+                $isFirstRow = false;
+                continue;
+            }
+
+            // Abaikan baris kosong
+            if (empty($row[1]) && empty($row[2])) {
+                continue;
+            }
+
+            // Pastikan urutan kolom sesuai dengan file Excel
+            // Asumsi urutan kolom di Excel (setelah kolom 'No' di A):
+            // B: Kategori, C: Kode Barang, D: NUP, E: Nama Barang, F: Kondisi,
+            // G: Ruangan, H: Merk, I: Tahun, J: Nilai Perolehan, K: Penanggung Jawab
+            $dataToInsert[] = [
+                'id_kategori'      => $this->getKategoriIdByName(trim($row[1])), // Kolom B (Kategori)
+                'kode_barang'      => trim($row[2]),                             // Kolom C (Kode Barang)
+                'nup'              => trim($row[3]),                             // Kolom D (NUP)
+                'nama_barang'      => trim($row[4]),                             // Kolom E (Nama Barang)
+                'kondisi'          => trim($row[5]),                             // Kolom F (Kondisi)
+                'id_lokasi'        => $this->getLokasiIdByName(trim($row[6])),   // Kolom G (Ruangan)
+                'merk'             => trim($row[7]),                             // Kolom H (Merk)
+                'tahun_perolehan'  => trim($row[8]),                             // Kolom I (Tahun)
+                'nilai_perolehan'  => (float) str_replace(['.', ','], ['', '.'], trim($row[9])), // Kolom J (Nilai Perolehan)
+                'penanggung_jawab' => trim($row[10]),                            // Kolom K (Penanggung Jawab)
+                'created_at'       => date('Y-m-d H:i:s'),
+                'updated_at'       => date('Y-m-d H:i:s'),
+            ];
+        }
+
+        // Insert batch jika ada data
+        if (! empty($dataToInsert)) {
+            $barangModel->insertBatch($dataToInsert);
+        }
+
+        // Hapus file sementara
+        unlink($filePath);
+
+        return redirect()->back()->with('success', 'Data barang berhasil diimport ke database.');
     }
 
 }

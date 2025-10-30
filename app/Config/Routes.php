@@ -13,6 +13,9 @@ $routes->post('proses-login', 'AuthController::proses_login');
 $routes->post('proses-register', 'AuthController::proses_register');
 $routes->get('logout', 'AuthController::logout');
 
+// Route publik untuk menampilkan detail barang dari hasil scan QR code
+$routes->get('scan/(:segment)', 'BarangController::scan_detail/$1');
+
 // Protected routes (with auth filter)
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'DashboardController::index');
@@ -53,5 +56,6 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('export-excel-aktif', 'MasterDataController::export_excel_aktif');
     $routes->get('export-pdf-inaktif', 'MasterDataController::export_pdf_inaktif');
     $routes->get('export-excel-inaktif', 'MasterDataController::export_excel_inaktif');
+    $routes->post('/barang/import_excel', 'MasterDataController::import_excel');
 
 });

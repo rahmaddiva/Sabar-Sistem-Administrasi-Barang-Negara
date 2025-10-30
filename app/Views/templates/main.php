@@ -28,6 +28,8 @@
         class="template-customizer-theme-css" />
     <link rel="stylesheet" href="<?php echo base_url();?>assets/css/demo.css" />
 
+    <!-- Di bagian HEAD, tambahkan CSS -->
+<link rel="stylesheet" href="<?= base_url('assets/css/qr-scanner.css') ?>">
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
     <link rel="stylesheet" href="<?php echo base_url();?>assets/vendor/libs/apex-charts/apex-charts.css" />
@@ -143,7 +145,9 @@
 
     <!-- Main JS -->
     <script src="<?php echo base_url();?>assets/js/main.js"></script>
-
+<!-- Di bagian sebelum </body>, tambahkan JS -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="<?= base_url('assets/js/qr-scanner.js') ?>"></script>
     <!-- Page JS -->
     <script src="<?php echo base_url();?>assets/js/dashboards-analytics.js"></script>
     <!-- Page JS -->
